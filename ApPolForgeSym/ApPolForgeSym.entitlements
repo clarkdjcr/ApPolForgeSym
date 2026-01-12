@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Required for debugging on macOS -->
+	<key>com.apple.security.get-task-allow</key>
+	<true/>
+	
+	<!-- App Sandbox (optional - remove if you need more system access) -->
+	<key>com.apple.security.app-sandbox</key>
+	<true/>
+	
+	<!-- Network access (if your app needs it) -->
+	<key>com.apple.security.network.client</key>
+	<true/>
+	
+	<!-- File access (if needed) -->
+	<key>com.apple.security.files.user-selected.read-write</key>
+	<true/>
+</dict>
+</plist>

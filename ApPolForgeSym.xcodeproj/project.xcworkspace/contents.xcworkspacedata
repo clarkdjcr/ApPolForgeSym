@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "self:">
+   </FileRef>
+   <FileRef
+      location = "group:COMPILATION_FIX_API_KEYS.md">
+   </FileRef>
+   <FileRef
+      location = "group:APIKeySettingsView_ToAdd.swift">
+   </FileRef>
+   <FileRef
+      location = "group:FIXES_COMPLETE_README.md">
+   </FileRef>
+   <FileRef
+      location = "group:VISUAL_FIX_GUIDE.md">
+   </FileRef>
+   <FileRef
+      location = "group:GAMEEVENT_FIX.md">
+   </FileRef>
+   <FileRef
+      location = "group:GAMEEVENT_VISUAL_FIX.md">
+   </FileRef>
+   <FileRef
+      location = "group:ALL_FIXES_COMPLETE.md">
+   </FileRef>
+   <FileRef
+      location = "group:ACTOR_ACCESS_FIXES.md">
+   </FileRef>
+   <FileRef
+      location = "group:QUICK_FIX_SUMMARY.md">
+   </FileRef>
+</Workspace>
