@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "self:">
+   </FileRef>
+   <FileRef
+      location = "group:PersistenceManager.swift">
+   </FileRef>
+   <FileRef
+      location = "group:SettingsView.swift">
+   </FileRef>
+   <FileRef
+      location = "group:TutorialView.swift">
+   </FileRef>
+   <FileRef
+      location = "group:HapticsManager.swift">
+   </FileRef>
+   <FileRef
+      location = "group:AccessibilityExtensions.swift">
+   </FileRef>
+   <FileRef
+      location = "group:APP_ICON_GUIDE.md">
+   </FileRef>
+   <FileRef
+      location = "group:APP_STORE_CHECKLIST.md">
+   </FileRef>
+   <FileRef
+      location = "group:FEATURES.md">
+   </FileRef>
+   <FileRef
+      location = "group:IMPLEMENTATION_SUMMARY.md">
+   </FileRef>
+   <FileRef
+      location = "group:AppSettings.swift">
+   </FileRef>
+   <FileRef
+      location = "group:ModelsAppSettings.swift">
+   </FileRef>
+   <FileRef
+      location = "group:AppSettings 2.swift">
+   </FileRef>
+   <FileRef
+      location = "group:AppSettings 3.swift">
+   </FileRef>
+   <FileRef
+      location = "group:AppSettings 4.swift">
+   </FileRef>
+</Workspace>
