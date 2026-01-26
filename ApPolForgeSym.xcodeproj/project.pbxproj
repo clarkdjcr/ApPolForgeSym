@@ -10,6 +10,13 @@
 		9251B3F52F15BC79005EF083 /* COMPILATION_FIXES.md in Resources */ = {isa = PBXBuildFile; fileRef = 9251B3F42F15BC79005EF083 /* COMPILATION_FIXES.md */; };
 		9251B3F72F15BC90005EF083 /* INTEGRATION_CHECKLIST.md in Resources */ = {isa = PBXBuildFile; fileRef = 9251B3F62F15BC90005EF083 /* INTEGRATION_CHECKLIST.md */; };
 		9251B3F92F15BD33005EF083 /* XCODE_TROUBLESHOOTING.md in Resources */ = {isa = PBXBuildFile; fileRef = 9251B3F82F15BD33005EF083 /* XCODE_TROUBLESHOOTING.md */; };
+		9252FE3B2F256FF300FB8DA6 /* APP_STORE_Submit.md in Resources */ = {isa = PBXBuildFile; fileRef = 9252FE3A2F256FF200FB8DA6 /* APP_STORE_Submit.md */; };
+		9252FE3D2F2574DB00FB8DA6 /* App_Store_Submission_Checklist.md in Resources */ = {isa = PBXBuildFile; fileRef = 9252FE3C2F2574DB00FB8DA6 /* App_Store_Submission_Checklist.md */; };
+		9252FE3F2F25752E00FB8DA6 /* Age_Rating_Questions.md in Resources */ = {isa = PBXBuildFile; fileRef = 9252FE3E2F25752E00FB8DA6 /* Age_Rating_Questions.md */; };
+		9252FE412F25759E00FB8DA6 /* Response_Items.md in Resources */ = {isa = PBXBuildFile; fileRef = 9252FE402F25759E00FB8DA6 /* Response_Items.md */; };
+		9252FE432F25765B00FB8DA6 /* App_Iccon_Design_Guide.md in Resources */ = {isa = PBXBuildFile; fileRef = 9252FE422F25765B00FB8DA6 /* App_Iccon_Design_Guide.md */; };
+		9252FE452F2578A700FB8DA6 /* Privacy_Policy.md in Resources */ = {isa = PBXBuildFile; fileRef = 9252FE442F2578A700FB8DA6 /* Privacy_Policy.md */; };
+		9252FE472F25797A00FB8DA6 /* Screenshots_Design_Guide.md in Resources */ = {isa = PBXBuildFile; fileRef = 9252FE462F25797A00FB8DA6 /* Screenshots_Design_Guide.md */; };
 		926DD15A2F1555E000E47319 /* ApPolForgeSym.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 926DD1582F1555E000E47319 /* ApPolForgeSym.xcdatamodeld */; };
 		926DD1622F15573000E47319 /* BUILD_FIX_GUIDE.md in Resources */ = {isa = PBXBuildFile; fileRef = 926DD1612F15573000E47319 /* BUILD_FIX_GUIDE.md */; };
 		926DD1642F15575200E47319 /* CORE_DATA_EXPLANATION.md in Resources */ = {isa = PBXBuildFile; fileRef = 926DD1632F15575200E47319 /* CORE_DATA_EXPLANATION.md */; };
@@ -48,6 +55,13 @@
 		9251B3F42F15BC79005EF083 /* COMPILATION_FIXES.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = COMPILATION_FIXES.md; sourceTree = "<group>"; };
 		9251B3F62F15BC90005EF083 /* INTEGRATION_CHECKLIST.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = INTEGRATION_CHECKLIST.md; sourceTree = "<group>"; };
 		9251B3F82F15BD33005EF083 /* XCODE_TROUBLESHOOTING.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = XCODE_TROUBLESHOOTING.md; sourceTree = "<group>"; };
+		9252FE3A2F256FF200FB8DA6 /* APP_STORE_Submit.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = APP_STORE_Submit.md; sourceTree = "<group>"; };
+		9252FE3C2F2574DB00FB8DA6 /* App_Store_Submission_Checklist.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = App_Store_Submission_Checklist.md; sourceTree = "<group>"; };
+		9252FE3E2F25752E00FB8DA6 /* Age_Rating_Questions.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Age_Rating_Questions.md; sourceTree = "<group>"; };
+		9252FE402F25759E00FB8DA6 /* Response_Items.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Response_Items.md; sourceTree = "<group>"; };
+		9252FE422F25765B00FB8DA6 /* App_Iccon_Design_Guide.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = App_Iccon_Design_Guide.md; sourceTree = "<group>"; };
+		9252FE442F2578A700FB8DA6 /* Privacy_Policy.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Privacy_Policy.md; sourceTree = "<group>"; };
+		9252FE462F25797A00FB8DA6 /* Screenshots_Design_Guide.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Screenshots_Design_Guide.md; sourceTree = "<group>"; };
 		926BE5B82F1487CD000DD882 /* ApPolForgeSym.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ApPolForgeSym.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		926BE5CA2F1487CE000DD882 /* ApPolForgeSymTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApPolForgeSymTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		926BE5D42F1487CE000DD882 /* ApPolForgeSymUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApPolForgeSymUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -114,6 +128,13 @@
 		926BE5AF2F1487CD000DD882 = {
 			isa = PBXGroup;
 			children = (
+				9252FE462F25797A00FB8DA6 /* Screenshots_Design_Guide.md */,
+				9252FE442F2578A700FB8DA6 /* Privacy_Policy.md */,
+				9252FE422F25765B00FB8DA6 /* App_Iccon_Design_Guide.md */,
+				9252FE3E2F25752E00FB8DA6 /* Age_Rating_Questions.md */,
+				9252FE402F25759E00FB8DA6 /* Response_Items.md */,
+				9252FE3C2F2574DB00FB8DA6 /* App_Store_Submission_Checklist.md */,
+				9252FE3A2F256FF200FB8DA6 /* APP_STORE_Submit.md */,
 				926DD1582F1555E000E47319 /* ApPolForgeSym.xcdatamodeld */,
 				926BE5BA2F1487CD000DD882 /* ApPolForgeSym */,
 				926BE5CD2F1487CE000DD882 /* ApPolForgeSymTests */,
@@ -270,15 +291,22 @@
 			buildActionMask = 2147483647;
 			files = (
 				926DD1622F15573000E47319 /* BUILD_FIX_GUIDE.md in Resources */,
+				9252FE3D2F2574DB00FB8DA6 /* App_Store_Submission_Checklist.md in Resources */,
+				9252FE3F2F25752E00FB8DA6 /* Age_Rating_Questions.md in Resources */,
+				9252FE452F2578A700FB8DA6 /* Privacy_Policy.md in Resources */,
 				926DD1662F15575F00E47319 /* QUICK_FIX_CHECKLIST.md in Resources */,
+				9252FE432F25765B00FB8DA6 /* App_Iccon_Design_Guide.md in Resources */,
 				9251B3F92F15BD33005EF083 /* XCODE_TROUBLESHOOTING.md in Resources */,
 				926DD16A2F1557B900E47319 /* VISUAL_EXPLANATION.md in Resources */,
 				926DD1702F155D0300E47319 /* DUPLICATES_FIXED.md in Resources */,
 				9251B3F72F15BC90005EF083 /* INTEGRATION_CHECKLIST.md in Resources */,
 				926DD1682F15578F00E47319 /* ALL_THREE_SOLUTIONS.md in Resources */,
+				9252FE3B2F256FF300FB8DA6 /* APP_STORE_Submit.md in Resources */,
 				926DD16E2F155C9000E47319 /* STATUS_UPDATE.md in Resources */,
 				9251B3F52F15BC79005EF083 /* COMPILATION_FIXES.md in Resources */,
 				926DD1642F15575200E47319 /* CORE_DATA_EXPLANATION.md in Resources */,
+				9252FE412F25759E00FB8DA6 /* Response_Items.md in Resources */,
+				9252FE472F25797A00FB8DA6 /* Screenshots_Design_Guide.md in Resources */,
 				926DD1742F155DC500E47319 /* BUILD_STATUS_LATEST.md in Resources */,
 				926DD1762F155E6F00E47319 /* SYNTAX_ERRORS_FIXED.md in Resources */,
 				9273A5862F16FD9100570EC1 /* IMPLEMENTATION_SUMMARY.md in Resources */,
