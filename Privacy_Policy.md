@@ -373,13 +373,13 @@ This privacy policy is provided "as is" without warranty. While we strive for ac
 **Thank you for playing Campaign Manager Simulation!**
 
 For more information, visit:
-- App Store page: [[Link]](https://github.com/clarkdjcr/ApPolForgeSym/tree/main)
-- Support: [appolforgesym](https://github.com/clarkdjcr/ApPolForgeSym/tree/main)@example.com
-- Website: [[Your website]](https://github.com/clarkdjcr/ApPolForgeSym/tree/main)
+- App Store page: https://github.com/clarkdjcr/ApPolForgeSym/tree/main
+- Support: donc542@me.com
+- Website: https://github.com/clarkdjcr/ApPolForgeSym/tree/main
 
 ---
 
-*Last updated: January 24, 2026*  
+*Last updated: January 27, 2026*  
 *Version: 1.0*
 
 ---
