@@ -19,7 +19,8 @@ struct ShadowBudgetView: View {
     @State private var selectedOperation: ShadowOperationType?
     @State private var glitchOffset: CGFloat = 0
     @State private var showGlitch = false
-    
+    @State private var userConfirmedBlackOps = false
+
     // IMPORTANT FIX: Cache these values to prevent infinite loops
     @State private var cachedShadowState: ShadowBudgetState?
     @State private var cachedIntegrity: IntegrityBonus?
@@ -43,7 +44,16 @@ struct ShadowBudgetView: View {
     var currentZone: ShadowBudgetZone {
         ShadowBudgetZone.zone(for: sliderValue)
     }
-    
+
+    // Platform-specific panel background color
+    private var panelBackgroundColor: Color {
+        #if os(macOS)
+        Color(nsColor: .controlBackgroundColor)
+        #else
+        Color(white: 0.88)
+        #endif
+    }
+
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
@@ -101,9 +111,10 @@ struct ShadowBudgetView: View {
         }
         .alert("Enter the Red Zone?", isPresented: $showingWarning) {
             Button("Cancel", role: .cancel) {
-                sliderValue = 15
+                sliderValue = 14
             }
             Button("Proceed", role: .destructive) {
+                userConfirmedBlackOps = true
                 commitAllocation()
             }
         } message: {
@@ -155,12 +166,12 @@ struct ShadowBudgetView: View {
                         .foregroundStyle(.green)
                 }
                 .padding(8)
-                .background(Color.green.opacity(0.1))
+                .background(Color.green.opacity(0.25))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
         }
         .padding()
-        .background(Color(white: 0.95))
+        .background(panelBackgroundColor)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
     
@@ -213,17 +224,17 @@ struct ShadowBudgetView: View {
             // Zone markers
             HStack(spacing: 0) {
                 Rectangle()
-                    .fill(Color.green.opacity(0.3))
+                    .fill(Color.green.opacity(0.6))
                     .frame(height: 4)
                     .frame(maxWidth: .infinity)
-                
+
                 Rectangle()
-                    .fill(Color.orange.opacity(0.3))
+                    .fill(Color.orange.opacity(0.6))
                     .frame(height: 4)
                     .frame(maxWidth: .infinity)
-                
+
                 Rectangle()
-                    .fill(Color.red.opacity(0.3))
+                    .fill(Color.red.opacity(0.6))
                     .frame(height: 4)
                     .frame(maxWidth: .infinity)
             }
@@ -258,7 +269,7 @@ struct ShadowBudgetView: View {
             .disabled(sliderValue == shadowState.allocationPercentage)
         }
         .padding()
-        .background(Color(white: 0.95))
+        .background(panelBackgroundColor)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
     
@@ -311,7 +322,7 @@ struct ShadowBudgetView: View {
             }
         }
         .padding()
-        .background(zoneColor.opacity(0.1))
+        .background(zoneColor.opacity(0.25))
         .overlay(
             RoundedRectangle(cornerRadius: 12)
                 .stroke(zoneColor, lineWidth: 2)
@@ -368,10 +379,10 @@ struct ShadowBudgetView: View {
                 .foregroundStyle(.secondary)
         }
         .padding()
-        .background(Color.green.opacity(0.1))
+        .background(Color.green.opacity(0.25))
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
-    
+
     // MARK: - Shell Company Section
     
     var shellCompanySection: some View {
@@ -443,7 +454,7 @@ struct ShadowBudgetView: View {
             }
         }
         .padding()
-        .background(Color.purple.opacity(0.05))
+        .background(Color.purple.opacity(0.2))
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .alert("Establish Shell Company?", isPresented: $showingShellSetup) {
             Button("Cancel", role: .cancel) { }
@@ -478,7 +489,7 @@ struct ShadowBudgetView: View {
             }
         }
         .padding()
-        .background(Color(white: 0.95))
+        .background(panelBackgroundColor)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
     
@@ -502,7 +513,7 @@ struct ShadowBudgetView: View {
             }
         }
         .padding()
-        .background(Color.red.opacity(0.05))
+        .background(Color.red.opacity(0.2))
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
     
@@ -536,7 +547,7 @@ struct ShadowBudgetView: View {
             }
         }
         .padding()
-        .background(Color.blue.opacity(0.05))
+        .background(Color.blue.opacity(0.2))
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
     
@@ -568,11 +579,14 @@ struct ShadowBudgetView: View {
     
     // CRITICAL FIX: Batch update to prevent infinite publish loops
     private func commitAllocation() {
-        // Warning for entering red zone
-        if currentZone == .blackOps && shadowState.currentZone != .blackOps {
+        // Warning for entering red zone (skip if user already confirmed)
+        if currentZone == .blackOps && shadowState.currentZone != .blackOps && !userConfirmedBlackOps {
             showingWarning = true
             return
         }
+
+        // Reset confirmation flag after use
+        userConfirmedBlackOps = false
         
         // Create a copy of the state, modify it, then assign back
         // This prevents intermediate publishes that can trigger infinite loops
@@ -776,7 +790,15 @@ struct OperationDetailView: View {
     let shadowManager: ShadowBudgetManager
     let gameState: GameState
     @Binding var isPresented: Bool
-    
+
+    private var panelBackgroundColor: Color {
+        #if os(macOS)
+        Color(nsColor: .controlBackgroundColor)
+        #else
+        Color(white: 0.88)
+        #endif
+    }
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
@@ -812,7 +834,7 @@ struct OperationDetailView: View {
                     }
                 }
                 .padding()
-                .background(Color(white: 0.95))
+                .background(panelBackgroundColor)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 
                 Button {
