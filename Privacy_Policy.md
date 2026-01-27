@@ -328,7 +328,7 @@ In the unlikely event of a security incident:
 ## Questions & Complaints
 
 ### Privacy Questions
-Contact us at: appolforgesym@example.com
+Contact us at: donc542@me.com
 
 ### Complaints (EU/EEA)
 You have the right to lodge a complaint with your local data protection authority:
