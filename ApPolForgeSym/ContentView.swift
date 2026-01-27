@@ -1078,9 +1078,11 @@ struct ResultsView: View {
     
     var body: some View {
         let votes = gameState.calculateElectoralVotes()
-        let winner: String = votes.incumbent >= 270 ? gameState.incumbent.name : gameState.challenger.name
-        let playerWon = (votes.incumbent >= 270 && !gameState.incumbent.isAI) || 
-                       (votes.challenger >= 270 && !gameState.challenger.isAI)
+        // Determine winner: 270+ wins outright, otherwise whoever has more votes wins
+        let incumbentWins = votes.incumbent >= 270 || (votes.challenger < 270 && votes.incumbent > votes.challenger)
+        let winner: String = incumbentWins ? gameState.incumbent.name : gameState.challenger.name
+        let playerWon = (incumbentWins && !gameState.incumbent.isAI) ||
+                       (!incumbentWins && !gameState.challenger.isAI)
         
         NavigationStack {
             ZStack {
@@ -1127,23 +1129,23 @@ struct ResultsView: View {
                                     Text(gameState.incumbent.name)
                                         .font(.headline)
                                     
-                                    if votes.incumbent >= 270 {
+                                    if incumbentWins {
                                         Image(systemName: "checkmark.circle.fill")
                                             .foregroundStyle(.green)
                                             .accessibilityLabel("Winner")
                                     }
                                 }
-                                
+
                                 VStack {
                                     Text("\(votes.challenger)")
                                         .font(.system(size: 50))
                                         .fontWeight(.bold)
                                         .foregroundStyle(.red)
-                                    
+
                                     Text(gameState.challenger.name)
                                         .font(.headline)
-                                    
-                                    if votes.challenger >= 270 {
+
+                                    if !incumbentWins {
                                         Image(systemName: "checkmark.circle.fill")
                                             .foregroundStyle(.green)
                                             .accessibilityLabel("Winner")
@@ -1221,7 +1223,7 @@ struct ResultsView: View {
             .navigationTitle("Campaign Complete")
             .onAppear {
                 HapticsManager.shared.playGameEndFeedback()
-                AccessibilityAnnouncement.announceScreenChange("\(winner) wins the election with \(votes.incumbent >= 270 ? votes.incumbent : votes.challenger) electoral votes")
+                AccessibilityAnnouncement.announceScreenChange("\(winner) wins the election with \(incumbentWins ? votes.incumbent : votes.challenger) electoral votes")
                 
                 // Clear auto-save
                 try? PersistenceManager.shared.deleteAutoSave()
