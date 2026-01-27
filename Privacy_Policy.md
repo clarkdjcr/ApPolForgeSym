@@ -17,7 +17,7 @@ ApPolForgeSym ("Political Campaign Simulator: Electoral Strategy," "we," "our," 
 
 ### Information We DO NOT Collect
 
-ApPolForgeSym is designed with privacy in mind. **We do not collect:**
+Political Campaign Simulator is designed with privacy in mind. **We do not collect:**
 
 - ❌ **No personal information** (name, email, phone number, address)
 - ❌ **No location data** (GPS, IP address, device location)
@@ -149,7 +149,7 @@ If you use optional AI features:
 
 ## Children's Privacy
 
-ApPolForgeSym is rated **12+** and complies with the Children's Online Privacy Protection Act (COPPA).
+Campaiogn Manager is rated **12+** and complies with the Children's Online Privacy Protection Act (COPPA).
 
 **Why 12+ Rating:**
 - Game includes themes of political campaigns and strategy
@@ -240,17 +240,18 @@ We are not responsible for the privacy practices of these external sites. Please
 
 If you have questions about this Privacy Policy, please contact us:
 
-**Email:** appolforgesym@example.com  
+**Email:** donc542@me.com 
 *(Replace with your actual support email)*
 
-**Support Page:** [Your support website]  
+**Support Page:** [[Your support website] ](https://github.com/clarkdjcr/ApPolForgeSym/tree/main) 
 *(Replace with actual URL when created)*
 
 **Mailing Address:**  
-[Your Name/Company]  
-[Street Address]  
-[City, State ZIP]  
-[Country]
+Donald Clark
+donc542@me.com
+8622 Lake Pines Drive
+Cornelius, North Carolina 28031
++1 256 527 0123
 
 **Response Time:** We aim to respond within 48 hours.
 
@@ -369,12 +370,12 @@ This privacy policy is provided "as is" without warranty. While we strive for ac
 
 ---
 
-**Thank you for playing ApPolForgeSym!**
+**Thank you for playing Campaign Manager Simulation!**
 
 For more information, visit:
-- App Store page: [Link]
-- Support: appolforgesym@example.com
-- Website: [Your website]
+- App Store page: [[Link]](https://github.com/clarkdjcr/ApPolForgeSym/tree/main)
+- Support: [appolforgesym](https://github.com/clarkdjcr/ApPolForgeSym/tree/main)@example.com
+- Website: [[Your website]](https://github.com/clarkdjcr/ApPolForgeSym/tree/main)
 
 ---
 
