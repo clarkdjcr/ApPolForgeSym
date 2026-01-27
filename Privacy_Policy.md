@@ -1,7 +1,7 @@
 #  # 🔒 Privacy Policy - ApPolForgeSym
 
-**Effective Date:** January 24, 2026  
-**Last Updated:** January 24, 2026
+**Effective Date:** January 27, 2026  
+**Last Updated:** January 27, 2026
 
 ---
 
@@ -241,10 +241,10 @@ We are not responsible for the privacy practices of these external sites. Please
 If you have questions about this Privacy Policy, please contact us:
 
 **Email:** donc542@me.com 
-*(Replace with your actual support email)*
 
-**Support Page:** [[Your support website] ](https://github.com/clarkdjcr/ApPolForgeSym/tree/main) 
-*(Replace with actual URL when created)*
+
+**Support Page:** https://github.com/clarkdjcr/ApPolForgeSym/tree/main
+
 
 **Mailing Address:**  
 Donald Clark
