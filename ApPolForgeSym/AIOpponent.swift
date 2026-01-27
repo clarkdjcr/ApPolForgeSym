@@ -148,11 +148,12 @@ class AIOpponent {
             player: .challenger,
             turn: gameState.currentTurn
         )
-        
+
+        reportAction(actionType: actionType, targetState: actionType == .opposition ? nil : targetState, strategy: .aggressive)
         gameState.executeAction(action)
         gameState.endTurn()
     }
-    
+
     private func executeDefensiveStrategy() async {
         let challenger = gameState.challenger
         
@@ -191,11 +192,12 @@ class AIOpponent {
             player: .challenger,
             turn: gameState.currentTurn
         )
-        
+
+        reportAction(actionType: actionType, targetState: targetState, strategy: .defensive)
         gameState.executeAction(action)
         gameState.endTurn()
     }
-    
+
     private func executeBalancedStrategy() async {
         let challenger = gameState.challenger
         
@@ -215,7 +217,7 @@ class AIOpponent {
         if let targetState = targetStates.first {
             let balancedActions: [CampaignActionType] = [.adCampaign, .rally, .townHall, .grassroots]
             let availableActions = balancedActions.filter { challenger.campaignFunds >= $0.cost * 1.5 }
-            
+
             if let actionType = availableActions.first {
                 let action = CampaignAction(
                     type: actionType,
@@ -223,16 +225,17 @@ class AIOpponent {
                     player: .challenger,
                     turn: gameState.currentTurn
                 )
-                
+
+                reportAction(actionType: actionType, targetState: targetState, strategy: .balanced)
                 gameState.executeAction(action)
                 gameState.endTurn()
                 return
             }
         }
-        
+
         await executeFundraisingStrategy()
     }
-    
+
     private func executeMultiStateStrategy() async {
         // Expert strategy: target multiple similar states at once
         let challenger = gameState.challenger
@@ -270,7 +273,7 @@ class AIOpponent {
         }
         
         gameState.challenger.momentum += 8
-        
+
         // Add event to recent events
         let event = GameEvent(
             id: UUID(),
@@ -282,13 +285,14 @@ class AIOpponent {
             turn: gameState.currentTurn
         )
         gameState.recentEvents.append(event)
-        
+
+        reportMultiStateAction(stateCount: targetStates.count, totalCost: totalCost)
         gameState.endTurn()
     }
-    
+
     private func executeFundraisingStrategy() async {
         let challenger = gameState.challenger
-        
+
         if challenger.campaignFunds >= CampaignActionType.fundraiser.cost {
             let action = CampaignAction(
                 type: .fundraiser,
@@ -296,7 +300,8 @@ class AIOpponent {
                 player: .challenger,
                 turn: gameState.currentTurn
             )
-            
+
+            reportAction(actionType: .fundraiser, targetState: nil, strategy: .fundraising)
             gameState.executeAction(action)
             gameState.endTurn()
         } else {
@@ -304,7 +309,7 @@ class AIOpponent {
             let cheapestAction = CampaignActionType.allCases
                 .filter { challenger.campaignFunds >= $0.cost }
                 .min { $0.cost < $1.cost }
-            
+
             if let actionType = cheapestAction {
                 let needsState: Bool = {
                     switch actionType {
@@ -314,35 +319,66 @@ class AIOpponent {
                         return true
                     }
                 }()
-                
+
                 let targetState = needsState ? gameState.states
                     .filter { $0.isBattleground }
                     .randomElement() ?? gameState.states.randomElement() : nil
-                
+
                 let action = CampaignAction(
                     type: actionType,
                     targetState: targetState,
                     player: .challenger,
                     turn: gameState.currentTurn
                 )
-                
+
+                reportAction(actionType: actionType, targetState: targetState, strategy: .fundraising)
                 gameState.executeAction(action)
                 gameState.endTurn()
             } else {
                 // Completely broke - skip turn
+                gameState.lastAIAction = nil // No action taken
                 gameState.endTurn()
             }
         }
     }
     
     // MARK: - Helper Methods
-    
+
     private func calculateStateValue(_ state: ElectoralState) -> Double {
         let margin = state.challengerSupport - state.incumbentSupport
         let competitiveness = max(0, 15.0 - abs(margin)) / 15.0
         let evWeight = Double(state.electoralVotes) / 3.0
         let battlegroundBonus = state.isBattleground ? 1.5 : 1.0
-        
+
         return (competitiveness * evWeight * battlegroundBonus)
+    }
+
+    private func reportAction(actionType: CampaignActionType, targetState: ElectoralState?, strategy: AIStrategy) {
+        let strategyName: String = switch strategy {
+        case .aggressive: "Aggressive"
+        case .defensive: "Defensive"
+        case .balanced: "Balanced"
+        case .fundraising: "Fundraising"
+        case .multiState: "Multi-State Blitz"
+        }
+
+        gameState.lastAIAction = AIActionReport(
+            actionType: actionType,
+            targetState: targetState,
+            strategy: strategyName,
+            turn: gameState.currentTurn,
+            cost: actionType.cost
+        )
+    }
+
+    private func reportMultiStateAction(stateCount: Int, totalCost: Double) {
+        // For multi-state strategy, create a special report
+        gameState.lastAIAction = AIActionReport(
+            actionType: .adCampaign,
+            targetState: nil,
+            strategy: "Multi-State Blitz (\(stateCount) states)",
+            turn: gameState.currentTurn,
+            cost: totalCost
+        )
     }
 }

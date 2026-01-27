@@ -214,6 +214,35 @@ struct GameEvent: Identifiable, Codable {
     }
 }
 
+// MARK: - AI Action Report
+
+struct AIActionReport: Identifiable {
+    let id = UUID()
+    let actionType: CampaignActionType
+    let targetState: ElectoralState?
+    let strategy: String
+    let turn: Int
+    let cost: Double
+
+    var summary: String {
+        if let state = targetState {
+            return "\(actionType.name) in \(state.name)"
+        } else {
+            return "\(actionType.name)"
+        }
+    }
+
+    var details: String {
+        var text = "Strategy: \(strategy)\n"
+        text += "Action: \(actionType.name)\n"
+        if let state = targetState {
+            text += "Target: \(state.name) (\(state.electoralVotes) EVs)\n"
+        }
+        text += "Cost: \(cost.asCurrency())"
+        return text
+    }
+}
+
 // MARK: - Game State
 
 @MainActor
@@ -226,7 +255,8 @@ class GameState: ObservableObject {
     @Published var currentPlayer: PlayerType
     @Published var recentEvents: [GameEvent]
     @Published var gamePhase: GamePhase
-    
+    @Published var lastAIAction: AIActionReport?
+
     enum GamePhase: String {
         case setup
         case playing

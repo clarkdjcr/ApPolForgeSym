@@ -309,9 +309,10 @@ struct GamePlayView: View {
     @State private var showingSettings = false
     @State private var showingHelp = false
     @State private var showingSaveConfirmation = false
+    @State private var showingAIActionReport = false
     @State private var aiOpponent: AIOpponent?
     @StateObject private var shadowManager: ShadowBudgetManager
-    
+
     var isPlayerTurn: Bool {
         if gameState.currentPlayer == .incumbent {
             return !gameState.incumbent.isAI
@@ -319,7 +320,7 @@ struct GamePlayView: View {
             return !gameState.challenger.isAI
         }
     }
-    
+
     init(gameState: GameState) {
         self._gameState = ObservedObject(wrappedValue: gameState)
         self._shadowManager = StateObject(wrappedValue: ShadowBudgetManager(gameState: gameState))
@@ -331,7 +332,7 @@ struct GamePlayView: View {
                 // Header with turn and electoral count
                 HeaderView(gameState: gameState)
                 
-                // Current player indicator
+                // Current player indicator / AI action report
                 if !isPlayerTurn {
                     HStack {
                         ProgressView()
@@ -348,9 +349,17 @@ struct GamePlayView: View {
                         #elseif canImport(AppKit)
                         Color(nsColor: .windowBackgroundColor)
                         #endif
-                    }                    .accessibilityLabel("AI opponent is thinking")
+                    }
+                    .accessibilityLabel("AI opponent is thinking")
+                } else if showingAIActionReport, let aiAction = gameState.lastAIAction {
+                    // Show what the AI did on their last turn
+                    AIActionReportBanner(action: aiAction) {
+                        withAnimation {
+                            showingAIActionReport = false
+                        }
+                    }
                 }
-                
+
                 // Tab selector
                 Picker("View", selection: $selectedTab) {
                     Text("Map").tag(0)
@@ -466,14 +475,30 @@ struct GamePlayView: View {
                 aiOpponent = AIOpponent(gameState: gameState)
                 checkForAITurn()
             }
-            .onChange(of: gameState.currentPlayer) { _, _ in
+            .onChange(of: gameState.currentPlayer) { oldPlayer, newPlayer in
                 HapticsManager.shared.playTurnEndFeedback()
-                
+
                 // Process shadow budget for this turn
                 shadowManager.processTurn(for: gameState.currentPlayer)
-                
+
+                // Show AI action report if AI just finished their turn
+                if isPlayerTurn && gameState.lastAIAction != nil {
+                    withAnimation {
+                        showingAIActionReport = true
+                    }
+                    // Auto-dismiss after 5 seconds
+                    Task {
+                        try? await Task.sleep(for: .seconds(5))
+                        await MainActor.run {
+                            withAnimation {
+                                showingAIActionReport = false
+                            }
+                        }
+                    }
+                }
+
                 checkForAITurn()
-                
+
                 // Auto-save
                 if AppSettings.shared.autoSaveEnabled {
                     try? PersistenceManager.shared.autoSaveGame(gameState)
@@ -513,9 +538,79 @@ struct GamePlayView: View {
     }
 }
 
+// MARK: - AI Action Report Banner
+
+struct AIActionReportBanner: View {
+    let action: AIActionReport
+    let onDismiss: () -> Void
+
+    var body: some View {
+        VStack(spacing: 8) {
+            HStack {
+                Image(systemName: "cpu")
+                    .foregroundStyle(.red)
+                Text("AI Opponent's Move")
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Button {
+                    onDismiss()
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+            }
+
+            HStack(spacing: 12) {
+                Image(systemName: action.actionType.systemImage)
+                    .font(.title2)
+                    .foregroundStyle(.red)
+                    .frame(width: 40)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(action.summary)
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+
+                    HStack(spacing: 8) {
+                        Text(action.strategy)
+                            .font(.caption2)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.red.opacity(0.2))
+                            .clipShape(Capsule())
+
+                        Text(action.cost.asCurrency())
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                Spacer()
+            }
+        }
+        .padding()
+        .background {
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.red.opacity(0.1))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.red.opacity(0.3), lineWidth: 1)
+                )
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 4)
+        .transition(.move(edge: .top).combined(with: .opacity))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("AI opponent used \(action.actionType.name)\(action.targetState != nil ? " in \(action.targetState!.name)" : "")")
+    }
+}
+
 struct HeaderView: View {
     @ObservedObject var gameState: GameState
-    
+
     var body: some View {
         let votes = gameState.calculateElectoralVotes()
         
