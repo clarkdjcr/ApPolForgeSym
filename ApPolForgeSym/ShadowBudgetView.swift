@@ -12,7 +12,6 @@ struct ShadowBudgetView: View {
     @ObservedObject var shadowManager: ShadowBudgetManager
     
     @State private var sliderValue: Double = 0.0
-    @State private var showingOperations = false
     @State private var showingShellSetup = false
     @State private var showingWarning = false
     @State private var showingScandal = false
@@ -99,15 +98,13 @@ struct ShadowBudgetView: View {
             cachedShadowState = shadowState
             cachedIntegrity = integrity
         }
-        .sheet(isPresented: $showingOperations) {
-            if let operation = selectedOperation {
-                OperationDetailView(
-                    operation: operation,
-                    shadowManager: shadowManager,
-                    gameState: gameState,
-                    isPresented: $showingOperations
-                )
-            }
+        .sheet(item: $selectedOperation) { operation in
+            OperationDetailView(
+                operation: operation,
+                shadowManager: shadowManager,
+                gameState: gameState,
+                onDismiss: { selectedOperation = nil }
+            )
         }
         .alert("Enter the Red Zone?", isPresented: $showingWarning) {
             Button("Cancel", role: .cancel) {
@@ -483,7 +480,6 @@ struct ShadowBudgetView: View {
                 .onTapGesture {
                     if sliderValue >= operation.minimumAllocation {
                         selectedOperation = operation
-                        showingOperations = true
                     }
                 }
             }
@@ -789,7 +785,7 @@ struct OperationDetailView: View {
     let operation: ShadowOperationType
     let shadowManager: ShadowBudgetManager
     let gameState: GameState
-    @Binding var isPresented: Bool
+    let onDismiss: () -> Void
 
     private var panelBackgroundColor: Color {
         #if os(macOS)
@@ -855,7 +851,7 @@ struct OperationDetailView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
-                        isPresented = false
+                        onDismiss()
                     }
                 }
             }
@@ -867,10 +863,10 @@ struct OperationDetailView: View {
             operation,
             for: gameState.currentPlayer
         )
-        
+
         if success {
             HapticsManager.shared.playSuccessFeedback()
-            isPresented = false
+            onDismiss()
         } else {
             HapticsManager.shared.playErrorFeedback()
         }

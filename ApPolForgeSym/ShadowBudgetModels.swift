@@ -74,12 +74,14 @@ struct ShadowBudgetState: Codable {
 
 // MARK: - Shadow Operations
 
-enum ShadowOperationType: String, Codable, CaseIterable {
+enum ShadowOperationType: String, Codable, CaseIterable, Identifiable {
     case dataTheft = "Data Theft"
     case sabotage = "Technical Sabotage"
     case opponentResearch = "Opposition Dirt"
     case voterSuppression = "Voter Suppression"
     case mediaManipulation = "Media Manipulation"
+
+    var id: String { rawValue }
     
     var description: String {
         switch self {
