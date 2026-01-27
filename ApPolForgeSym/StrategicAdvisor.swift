@@ -95,9 +95,6 @@ class StrategicAdvisor: ObservableObject {
             // Battleground states get more attention earlier
             let battlegroundBonus = state.isBattleground ? 0.2 : 0.0
 
-            // State size affects base staffing (bigger states = more staff)
-            let stateSizeFactor = Double(state.electoralVotes) / 55.0 // Normalize to CA's 55 votes
-
             // Calculate current staff positions
             let staffProgress = min(baseProgress + battlegroundBonus, 1.0) * campaignHealthFactor
             let targetStaff = Double(data.recommendedStaffPositions)
