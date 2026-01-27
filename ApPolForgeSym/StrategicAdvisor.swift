@@ -41,24 +41,85 @@ class StrategicAdvisor: ObservableObject {
     
     /// Update AI predictions for staffing based on current game state
     func updateStaffingPredictions(for playerType: PlayerType) {
-        let infrastructure = playerType == .incumbent ? incumbentInfrastructure : challengerInfrastructure
         let weeksRemaining = gameState.maxTurns - gameState.currentTurn
-        
+
         for state in gameState.states {
-            guard var data = infrastructure[state.id] else { continue }
-            
+            guard var data = (playerType == .incumbent ? incumbentInfrastructure : challengerInfrastructure)[state.id] else { continue }
+
             // AI prediction: more staff needed in competitive states and as election nears
             let competitivenessMultiplier = state.isBattleground ? 2.0 : 1.0
             let urgencyMultiplier = 1.0 + (1.0 - Double(weeksRemaining) / Double(gameState.maxTurns))
-            
+
             // Base calculation on state size and competitiveness
             let baseStaff = state.electoralVotes * 8
             data.recommendedStaffPositions = Int(Double(baseStaff) * competitivenessMultiplier * urgencyMultiplier)
-            
+
             let baseVolunteers = state.electoralVotes * 80
             data.recommendedVolunteers = Int(Double(baseVolunteers) * competitivenessMultiplier * urgencyMultiplier)
-            
+
             // Update infrastructure
+            if playerType == .incumbent {
+                incumbentInfrastructure[state.id] = data
+            } else {
+                challengerInfrastructure[state.id] = data
+            }
+        }
+
+        // Also update current staffing levels
+        updateCurrentInfrastructure(for: playerType)
+    }
+
+    /// Update current staff and volunteer counts based on game progression
+    /// This simulates realistic campaign infrastructure buildup over time
+    func updateCurrentInfrastructure(for playerType: PlayerType) {
+        let player = playerType == .incumbent ? gameState.incumbent : gameState.challenger
+        let currentTurn = gameState.currentTurn
+        let maxTurns = gameState.maxTurns
+
+        // Campaign progression factor (0.0 at start, 1.0 at end)
+        let progressFactor = Double(currentTurn) / Double(maxTurns)
+
+        // Campaign health factor based on funds and momentum
+        let startingFunds = playerType == .incumbent ? 220_000_000.0 : 150_000_000.0
+        let fundHealthFactor = min(player.campaignFunds / startingFunds, 1.5) // Can exceed 1.0 if fundraising went well
+        let momentumFactor = (Double(player.momentum) + 100.0) / 200.0 // Normalize -100..100 to 0..1
+        let campaignHealthFactor = (fundHealthFactor * 0.6 + momentumFactor * 0.4)
+
+        for state in gameState.states {
+            guard var data = (playerType == .incumbent ? incumbentInfrastructure : challengerInfrastructure)[state.id] else { continue }
+
+            // Base staffing grows with campaign progression
+            // Campaigns typically start with skeleton crews and ramp up toward election
+            let baseProgress = progressFactor * 0.7 + 0.15 // Start at 15%, grow to 85% by election
+
+            // Battleground states get more attention earlier
+            let battlegroundBonus = state.isBattleground ? 0.2 : 0.0
+
+            // State size affects base staffing (bigger states = more staff)
+            let stateSizeFactor = Double(state.electoralVotes) / 55.0 // Normalize to CA's 55 votes
+
+            // Calculate current staff positions
+            let staffProgress = min(baseProgress + battlegroundBonus, 1.0) * campaignHealthFactor
+            let targetStaff = Double(data.recommendedStaffPositions)
+            // Add some randomness for realism (±10%)
+            let staffVariance = Double.random(in: 0.9...1.1)
+            data.currentStaffPositions = max(1, Int(targetStaff * staffProgress * staffVariance))
+
+            // Volunteers are typically 5-10x staff numbers and build more organically
+            // They grow faster in later weeks as enthusiasm builds
+            let volunteerProgress = min(baseProgress * 1.2 + battlegroundBonus, 1.0) * campaignHealthFactor
+            let targetVolunteers = Double(data.recommendedVolunteers)
+            let volunteerVariance = Double.random(in: 0.85...1.15)
+            data.currentVolunteers = max(5, Int(targetVolunteers * volunteerProgress * volunteerVariance))
+
+            // Field offices, phonebanks, and canvassing teams also grow
+            let infrastructureProgress = progressFactor * campaignHealthFactor
+            let baseOffices = state.isBattleground ? 3 : 1
+            data.fieldOffices = max(1, Int(Double(baseOffices + state.electoralVotes / 10) * infrastructureProgress))
+            data.phonebanks = max(1, Int(Double(state.electoralVotes / 5) * infrastructureProgress * (state.isBattleground ? 1.5 : 1.0)))
+            data.canvassingTeams = max(2, Int(Double(state.electoralVotes) * infrastructureProgress * (state.isBattleground ? 2.0 : 1.0)))
+
+            // Update the infrastructure dictionary
             if playerType == .incumbent {
                 incumbentInfrastructure[state.id] = data
             } else {
