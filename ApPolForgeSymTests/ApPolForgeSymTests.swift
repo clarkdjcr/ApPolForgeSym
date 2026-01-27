@@ -80,8 +80,8 @@ struct GameStateTests {
     func testStartingFunds() async throws {
         let gameState = GameState()
         
-        #expect(gameState.incumbent.campaignFunds == 15_000_000, "Incumbent should start with 15M")
-        #expect(gameState.challenger.campaignFunds == 12_000_000, "Challenger should start with 12M")
+        #expect(gameState.incumbent.campaignFunds == 220_000_000, "Incumbent should start with $220M")
+        #expect(gameState.challenger.campaignFunds == 150_000_000, "Challenger should start with $150M")
     }
 }
 
@@ -334,16 +334,16 @@ struct PersistenceTests {
         // Save
         try PersistenceManager.shared.saveGame(gameState)
         
-        #expect(PersistenceManager.shared.hasSavedGame(), "Should have saved game")
-        
+        #expect(PersistenceManager.shared.hasAutoSave(), "Should have saved game")
+
         // Load
-        let saveData = try PersistenceManager.shared.loadGame()
+        let saveData = try PersistenceManager.shared.loadAutoSave()
         
         #expect(saveData.currentTurn == 5, "Saved turn should match")
         #expect(saveData.incumbent.campaignFunds == 10_000_000, "Saved funds should match")
         
         // Cleanup
-        try PersistenceManager.shared.deleteSavedGame()
+        try PersistenceManager.shared.deleteAutoSave()
     }
     
     @Test("Auto-save functionality")
@@ -373,7 +373,7 @@ struct PersistenceTests {
         #expect(metadata?.currentTurn == 10, "Metadata should have correct turn")
         
         // Cleanup
-        try PersistenceManager.shared.deleteSavedGame()
+        try PersistenceManager.shared.deleteAutoSave()
     }
 }
 
