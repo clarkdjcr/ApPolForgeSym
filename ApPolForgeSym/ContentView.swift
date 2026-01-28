@@ -330,7 +330,7 @@ struct GamePlayView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 // Header with turn and electoral count
-                HeaderView(gameState: gameState)
+                HeaderView(gameState: gameState, shadowManager: shadowManager)
                 
                 // Current player indicator / AI action report
                 if !isPlayerTurn {
@@ -610,45 +610,53 @@ struct AIActionReportBanner: View {
 
 struct HeaderView: View {
     @ObservedObject var gameState: GameState
+    var shadowManager: ShadowBudgetManager?
 
     var body: some View {
         let votes = gameState.calculateElectoralVotes()
-        
-        HStack(spacing: 20) {
-            VStack {
-                Text("\(votes.incumbent)")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundStyle(.blue)
-                
-                Text(gameState.incumbent.name)
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .foregroundColor(.primary)
+
+        VStack(spacing: 0) {
+            HStack(spacing: 20) {
+                VStack {
+                    Text("\(votes.incumbent)")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.blue)
+
+                    Text(gameState.incumbent.name)
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundColor(.primary)
+                }
+
+                VStack {
+                    Text("Electoral Votes")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                    Text("270 to Win")
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                }
+
+                VStack {
+                    Text("\(votes.challenger)")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.red)
+
+                    Text(gameState.challenger.name)
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundColor(.primary)
+                }
             }
-            
-            VStack {
-                Text("Electoral Votes")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                Text("270 to Win")
-                    .font(.caption)
-                    .fontWeight(.semibold)
-            }
-            
-            VStack {
-                Text("\(votes.challenger)")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundStyle(.red)
-                
-                Text(gameState.challenger.name)
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .foregroundColor(.primary)
+            .padding()
+
+            // Shadow Operations Status Indicator
+            if let shadowManager = shadowManager {
+                ShadowStatusIndicator(gameState: gameState, shadowManager: shadowManager)
             }
         }
-        .padding()
         #if os(macOS)
         .background(Color(nsColor: .controlBackgroundColor))
         #else
@@ -660,6 +668,93 @@ struct HeaderView: View {
             incumbentName: gameState.incumbent.name,
             challengerName: gameState.challenger.name
         )
+    }
+}
+
+// MARK: - Shadow Status Indicator
+
+struct ShadowStatusIndicator: View {
+    @ObservedObject var gameState: GameState
+    @ObservedObject var shadowManager: ShadowBudgetManager
+
+    var shadowState: ShadowBudgetState {
+        gameState.currentPlayer == .incumbent ?
+            shadowManager.incumbentShadowState :
+            shadowManager.challengerShadowState
+    }
+
+    var currentZone: ShadowBudgetZone {
+        ShadowBudgetZone.zone(for: shadowState.allocationPercentage)
+    }
+
+    var detectionRisk: Double {
+        let shell = gameState.currentPlayer == .incumbent ?
+            shadowManager.incumbentShellCompany :
+            shadowManager.challengerShellCompany
+        let baseDetection = shadowState.allocationPercentage / 100.0
+        let reduction = shell.isActive ? shell.detectionReduction : 0.0
+        return baseDetection * (1.0 - reduction) * 100
+    }
+
+    var body: some View {
+        // Only show if allocation is above transparent zone
+        if shadowState.allocationPercentage > 5 {
+            HStack(spacing: 12) {
+                // Zone indicator
+                HStack(spacing: 6) {
+                    Image(systemName: currentZone == .blackOps ? "exclamationmark.triangle.fill" : "eye.fill")
+                        .font(.caption)
+                    Text(currentZone == .blackOps ? "BLACK OPS" : "SHADOW OPS")
+                        .font(.caption2)
+                        .fontWeight(.bold)
+                }
+                .foregroundStyle(currentZone == .blackOps ? .white : .orange)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(currentZone == .blackOps ? Color.red : Color.orange.opacity(0.3))
+                .clipShape(Capsule())
+
+                // Detection risk
+                HStack(spacing: 4) {
+                    Image(systemName: "antenna.radiowaves.left.and.right")
+                        .font(.caption2)
+                    Text("Detection: \(String(format: "%.1f", detectionRisk))%")
+                        .font(.caption2)
+                        .fontWeight(.medium)
+                }
+                .foregroundStyle(detectionRisk > 15 ? .red : .orange)
+
+                Spacer()
+
+                // Allocation level
+                Text("\(Int(shadowState.allocationPercentage))% allocated")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 6)
+            .background(currentZone == .blackOps ? Color.red.opacity(0.15) : Color.orange.opacity(0.1))
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Shadow operations active at \(Int(shadowState.allocationPercentage)) percent. Detection risk \(String(format: "%.1f", detectionRisk)) percent")
+        } else if !shadowState.activeScandals.isEmpty {
+            // Show active scandal warning even if allocation is low
+            HStack(spacing: 8) {
+                Image(systemName: "exclamationmark.octagon.fill")
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                Text("SCANDAL ACTIVE")
+                    .font(.caption2)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.red)
+                Spacer()
+                Text("\(shadowState.activeScandals.count) active")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 6)
+            .background(Color.red.opacity(0.1))
+        }
     }
 }
 

@@ -787,6 +787,9 @@ struct OperationDetailView: View {
     let gameState: GameState
     let onDismiss: () -> Void
 
+    @State private var showingError = false
+    @State private var errorMessage = ""
+
     private var panelBackgroundColor: Color {
         #if os(macOS)
         Color(nsColor: .controlBackgroundColor)
@@ -795,55 +798,164 @@ struct OperationDetailView: View {
         #endif
     }
 
+    var currentPlayer: Player {
+        gameState.currentPlayer == .incumbent ? gameState.incumbent : gameState.challenger
+    }
+
+    var shadowState: ShadowBudgetState {
+        gameState.currentPlayer == .incumbent ?
+            shadowManager.incumbentShadowState :
+            shadowManager.challengerShadowState
+    }
+
+    var shell: ShellCompanyLayer {
+        gameState.currentPlayer == .incumbent ?
+            shadowManager.incumbentShellCompany :
+            shadowManager.challengerShellCompany
+    }
+
+    var actualCost: Double {
+        shell.isActive ? operation.baseCost * shell.costMultiplier : operation.baseCost
+    }
+
+    var hasEnoughAllocation: Bool {
+        shadowState.allocationPercentage >= operation.minimumAllocation
+    }
+
+    var hasEnoughFunds: Bool {
+        currentPlayer.campaignFunds >= actualCost
+    }
+
+    var canExecute: Bool {
+        hasEnoughAllocation && hasEnoughFunds
+    }
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
                 Image(systemName: "eye.trianglebadge.exclamationmark.fill")
                     .font(.system(size: 60))
                     .foregroundStyle(.red)
-                
+
                 Text(operation.rawValue)
                     .font(.title)
                     .fontWeight(.bold)
-                
+
                 Text(operation.description)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.secondary)
                     .padding(.horizontal)
-                
+
                 Spacer()
-                
+
+                // Requirements Section
                 VStack(alignment: .leading, spacing: 12) {
+                    Text("Requirements")
+                        .font(.headline)
+                        .padding(.bottom, 4)
+
+                    // Allocation requirement
                     HStack {
+                        Image(systemName: hasEnoughAllocation ? "checkmark.circle.fill" : "xmark.circle.fill")
+                            .foregroundStyle(hasEnoughAllocation ? Color.green : Color.red)
+                        Text("Minimum Allocation:")
+                        Spacer()
+                        Text("\(Int(operation.minimumAllocation))%")
+                            .fontWeight(.bold)
+                            .foregroundColor(hasEnoughAllocation ? .primary : .red)
+                    }
+
+                    HStack {
+                        Text("   Current:")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Text("\(Int(shadowState.allocationPercentage))%")
+                            .font(.caption)
+                            .foregroundColor(hasEnoughAllocation ? .green : .red)
+                    }
+
+                    Divider()
+
+                    // Cost requirement
+                    HStack {
+                        Image(systemName: hasEnoughFunds ? "checkmark.circle.fill" : "xmark.circle.fill")
+                            .foregroundColor(hasEnoughFunds ? .green : .red)
                         Text("Cost:")
                         Spacer()
-                        Text(operation.baseCost.asCurrency())
-                            .fontWeight(.bold)
+                        VStack(alignment: .trailing) {
+                            Text(actualCost.asCurrency())
+                                .fontWeight(.bold)
+                                .foregroundColor(hasEnoughFunds ? .primary : .red)
+                            if shell.isActive {
+                                Text("(2x shell company)")
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
                     }
-                    
+
+                    HStack {
+                        Text("   Available:")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Text(currentPlayer.campaignFunds.asCurrency())
+                            .font(.caption)
+                            .foregroundColor(hasEnoughFunds ? .green : .red)
+                    }
+
+                    Divider()
+
                     HStack {
                         Text("Detection Risk:")
                         Spacer()
                         Text("\(Int(operation.baseDetectionRisk * 100))%")
                             .fontWeight(.bold)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(.orange)
                     }
                 }
                 .padding()
                 .background(panelBackgroundColor)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
-                
+
+                // Error/Warning messages
+                if !hasEnoughAllocation {
+                    HStack {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.orange)
+                        Text("Increase allocation to \(Int(operation.minimumAllocation))% and commit before executing.")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                    }
+                    .padding()
+                    .background(Color.orange.opacity(0.15))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                } else if !hasEnoughFunds {
+                    HStack {
+                        Image(systemName: "dollarsign.circle.fill")
+                            .foregroundStyle(.red)
+                        Text("Insufficient funds. Need \((actualCost - currentPlayer.campaignFunds).asCurrency()) more.")
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                    }
+                    .padding()
+                    .background(Color.red.opacity(0.15))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+
                 Button {
                     executeOperation()
                 } label: {
-                    Text("Execute Operation")
+                    Text(canExecute ? "Execute Operation" : "Cannot Execute")
                         .fontWeight(.semibold)
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.red)
+                        .background(canExecute ? Color.red : Color.gray)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
+                .disabled(!canExecute)
                 .padding()
             }
             .padding()
@@ -855,10 +967,30 @@ struct OperationDetailView: View {
                     }
                 }
             }
+            .alert("Operation Failed", isPresented: $showingError) {
+                Button("OK") { }
+            } message: {
+                Text(errorMessage)
+            }
         }
     }
-    
+
     private func executeOperation() {
+        // Double-check requirements before executing
+        if !hasEnoughAllocation {
+            errorMessage = "Allocation must be at least \(Int(operation.minimumAllocation))%. Current: \(Int(shadowState.allocationPercentage))%. Commit your allocation first."
+            showingError = true
+            HapticsManager.shared.playErrorFeedback()
+            return
+        }
+
+        if !hasEnoughFunds {
+            errorMessage = "Insufficient funds. This operation costs \(actualCost.asCurrency()) but you only have \(currentPlayer.campaignFunds.asCurrency())."
+            showingError = true
+            HapticsManager.shared.playErrorFeedback()
+            return
+        }
+
         let success = shadowManager.executeOperation(
             operation,
             for: gameState.currentPlayer
@@ -868,6 +1000,8 @@ struct OperationDetailView: View {
             HapticsManager.shared.playSuccessFeedback()
             onDismiss()
         } else {
+            errorMessage = "Operation failed unexpectedly. Please try again."
+            showingError = true
             HapticsManager.shared.playErrorFeedback()
         }
     }
