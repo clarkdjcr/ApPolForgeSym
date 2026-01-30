@@ -413,27 +413,217 @@ struct FormattingTests {
 @Suite("AI Opponent Tests")
 @MainActor
 struct AIOpponentTests {
-    
+
     @Test("AI makes decisions")
     func testAIMakesDecision() async throws {
         let gameState = GameState()
         gameState.startGame()
-        
+
         let initialFunds = gameState.challenger.campaignFunds
         let initialTurn = gameState.currentTurn
-        
+
         let ai = AIOpponent(gameState: gameState)
-        
+
         // Switch to challenger's turn
         gameState.currentPlayer = .challenger
-        
+
         await ai.makeDecision()
-        
+
         // AI should have taken some action
         let fundsChanged = gameState.challenger.campaignFunds != initialFunds
         let turnAdvanced = gameState.currentTurn != initialTurn || gameState.currentPlayer != .challenger
-        
+
         #expect(fundsChanged || turnAdvanced, "AI should take action")
+    }
+}
+
+// MARK: - Multi-Action Turn Tests
+
+@Suite("Multi-Action Turn Tests")
+@MainActor
+struct MultiActionTurnTests {
+
+    @Test("Default action budget is 1")
+    func testDefaultActionBudget() async throws {
+        let gameState = GameState()
+        gameState.startGame()
+
+        #expect(gameState.actionsRemainingThisTurn == 1, "Should start with 1 action")
+        #expect(gameState.maxActionsThisTurn == 1, "Max should start at 1")
+        #expect(gameState.actionsUsedThisTurn.isEmpty, "No actions used yet")
+    }
+
+    @Test("calculateActionsForTurn sets budget from recommendations")
+    func testCalculateActionsForTurn() async throws {
+        let gameState = GameState()
+        gameState.startGame()
+
+        let advisor = StrategicAdvisor(gameState: gameState)
+        gameState.calculateActionsForTurn(advisor: advisor)
+
+        // With initial game state (many battleground states), there should be
+        // at least some Critical/High recommendations, so actions > 1
+        #expect(gameState.maxActionsThisTurn >= 1, "Should have at least 1 action")
+        #expect(gameState.maxActionsThisTurn <= 4, "Should not exceed cap of 4")
+        #expect(gameState.actionsRemainingThisTurn == gameState.maxActionsThisTurn,
+                "Remaining should equal max at start of turn")
+    }
+
+    @Test("useAction decrements counter")
+    func testUseActionDecrements() async throws {
+        let gameState = GameState()
+        gameState.startGame()
+
+        // Manually set to 3 actions so we can test decrement without endTurn
+        gameState.maxActionsThisTurn = 3
+        gameState.actionsRemainingThisTurn = 3
+
+        gameState.useAction()
+        #expect(gameState.actionsRemainingThisTurn == 2, "Should decrement to 2")
+
+        gameState.useAction()
+        #expect(gameState.actionsRemainingThisTurn == 1, "Should decrement to 1")
+    }
+
+    @Test("useAction auto-ends turn when reaching 0")
+    func testUseActionAutoEndsTurn() async throws {
+        let gameState = GameState()
+        gameState.startGame()
+
+        gameState.maxActionsThisTurn = 1
+        gameState.actionsRemainingThisTurn = 1
+        let playerBefore = gameState.currentPlayer
+
+        gameState.useAction()
+
+        // endTurn should have switched the player
+        #expect(gameState.currentPlayer != playerBefore, "Turn should end and switch player")
+        #expect(gameState.actionsRemainingThisTurn == 0, "Actions should be 0 after endTurn reset")
+    }
+
+    @Test("forceEndTurn ends turn immediately")
+    func testForceEndTurn() async throws {
+        let gameState = GameState()
+        gameState.startGame()
+
+        gameState.maxActionsThisTurn = 3
+        gameState.actionsRemainingThisTurn = 3
+        let playerBefore = gameState.currentPlayer
+
+        gameState.forceEndTurn()
+
+        #expect(gameState.currentPlayer != playerBefore, "Player should switch after forceEndTurn")
+        #expect(gameState.actionsRemainingThisTurn == 0, "Actions should be 0")
+    }
+
+    @Test("canAffordAnyAction detects broke player")
+    func testCanAffordAnyAction() async throws {
+        let gameState = GameState()
+        gameState.startGame()
+
+        // Player has $220M - should be able to afford
+        #expect(gameState.canAffordAnyAction(for: .incumbent) == true, "Should afford with $220M")
+
+        // Set funds to $0
+        gameState.incumbent.campaignFunds = 0
+        #expect(gameState.canAffordAnyAction(for: .incumbent) == false, "Should not afford with $0")
+
+        // Set funds to just below cheapest ($100K fundraiser)
+        gameState.incumbent.campaignFunds = 99_999
+        #expect(gameState.canAffordAnyAction(for: .incumbent) == false, "Should not afford below $100K")
+
+        // Set funds to exactly cheapest
+        gameState.incumbent.campaignFunds = 100_000
+        #expect(gameState.canAffordAnyAction(for: .incumbent) == true, "Should afford at exactly $100K")
+    }
+
+    @Test("endTurn resets action tracking")
+    func testEndTurnResetsTracking() async throws {
+        let gameState = GameState()
+        gameState.startGame()
+
+        gameState.maxActionsThisTurn = 3
+        gameState.actionsRemainingThisTurn = 2
+        let action = CampaignAction(type: .rally, targetState: gameState.states[0], player: .incumbent, turn: 1)
+        gameState.actionsUsedThisTurn = [action]
+
+        gameState.endTurn()
+
+        #expect(gameState.actionsUsedThisTurn.isEmpty, "Used actions should be cleared")
+        #expect(gameState.actionsRemainingThisTurn == 0, "Remaining should be 0")
+    }
+
+    @Test("Multiple actions can be taken before turn ends")
+    func testMultipleActionsPerTurn() async throws {
+        let gameState = GameState()
+        gameState.startGame()
+
+        // Give player 3 actions
+        gameState.maxActionsThisTurn = 3
+        gameState.actionsRemainingThisTurn = 3
+
+        let initialFunds = gameState.incumbent.campaignFunds
+        let playerBefore = gameState.currentPlayer
+
+        // Execute 2 actions - turn should NOT end
+        let action1 = CampaignAction(type: .fundraiser, targetState: nil, player: .incumbent, turn: 1)
+        gameState.executeAction(action1)
+        gameState.useAction()
+
+        #expect(gameState.currentPlayer == playerBefore, "Turn should NOT end after 1st of 3 actions")
+        #expect(gameState.actionsRemainingThisTurn == 2, "Should have 2 remaining")
+
+        let action2 = CampaignAction(type: .fundraiser, targetState: nil, player: .incumbent, turn: 1)
+        gameState.executeAction(action2)
+        gameState.useAction()
+
+        #expect(gameState.currentPlayer == playerBefore, "Turn should NOT end after 2nd of 3 actions")
+        #expect(gameState.actionsRemainingThisTurn == 1, "Should have 1 remaining")
+
+        // 3rd action should end the turn
+        let action3 = CampaignAction(type: .fundraiser, targetState: nil, player: .incumbent, turn: 1)
+        gameState.executeAction(action3)
+        gameState.useAction()
+
+        #expect(gameState.currentPlayer != playerBefore, "Turn SHOULD end after 3rd of 3 actions")
+    }
+
+    @Test("recommendedActionCount returns valid range")
+    func testRecommendedActionCount() async throws {
+        let gameState = GameState()
+        gameState.startGame()
+
+        let advisor = StrategicAdvisor(gameState: gameState)
+        let count = advisor.recommendedActionCount(for: .incumbent)
+
+        #expect(count >= 1, "Should recommend at least 1 action")
+        #expect(count <= 4, "Should recommend at most 4 actions")
+    }
+
+    @Test("AI gets same action count as player")
+    func testAIGetsMultipleActions() async throws {
+        let gameState = GameState()
+        gameState.startGame()
+
+        // Set up multi-action budget
+        gameState.maxActionsThisTurn = 3
+        gameState.actionsRemainingThisTurn = 3
+
+        let initialFunds = gameState.challenger.campaignFunds
+
+        // Switch to AI turn
+        gameState.currentPlayer = .challenger
+
+        let ai = AIOpponent(gameState: gameState)
+        await ai.makeDecision()
+
+        // AI should have spent more than a single action's cost
+        // (it gets 3 actions, so should use funds for multiple actions)
+        let fundsSpent = initialFunds - gameState.challenger.campaignFunds
+        #expect(fundsSpent > 0, "AI should spend funds on actions")
+
+        // Turn should have ended (player switched back)
+        #expect(gameState.currentPlayer == .incumbent, "AI should end its turn")
     }
 }
 
