@@ -256,6 +256,9 @@ class GameState: ObservableObject {
     @Published var recentEvents: [GameEvent]
     @Published var gamePhase: GamePhase
     @Published var lastAIAction: AIActionReport?
+    @Published var actionsRemainingThisTurn: Int = 1
+    @Published var maxActionsThisTurn: Int = 1
+    @Published var actionsUsedThisTurn: [CampaignAction] = []
 
     enum GamePhase: String {
         case setup
@@ -336,20 +339,62 @@ class GameState: ObservableObject {
         return (incumbentVotes, challengerVotes)
     }
     
+    /// Calculate how many actions the current player gets this turn based on strategic recommendations.
+    func calculateActionsForTurn(advisor: StrategicAdvisor) {
+        let recommendations = advisor.generateRecommendations(for: currentPlayer)
+
+        // Base: 1 action per turn
+        // +1 per Critical recommendation (max +2)
+        // +1 per High recommendation (max +1)
+        // Cap: 4 actions per turn
+        let criticalCount = min(recommendations.filter({ $0.priority == .critical }).count, 2)
+        let highCount = min(recommendations.filter({ $0.priority == .high }).count, 1)
+
+        let calculatedActions = 1 + criticalCount + highCount
+        maxActionsThisTurn = min(calculatedActions, 4)
+        actionsRemainingThisTurn = maxActionsThisTurn
+        actionsUsedThisTurn = []
+    }
+
+    /// Consume one action. Automatically ends the turn when no actions remain.
+    func useAction() {
+        actionsRemainingThisTurn -= 1
+        if actionsRemainingThisTurn <= 0 {
+            endTurn()
+        }
+    }
+
+    /// Check if the player can afford the cheapest available action.
+    func canAffordAnyAction(for playerType: PlayerType) -> Bool {
+        let player = playerType == .incumbent ? incumbent : challenger
+        let cheapest = CampaignActionType.allCases.map(\.cost).min() ?? 0
+        return player.campaignFunds >= cheapest
+    }
+
+    /// Force-end the turn immediately (e.g. player pressed End Turn Early, or out of funds).
+    func forceEndTurn() {
+        actionsRemainingThisTurn = 0
+        endTurn()
+    }
+
     func endTurn() {
+        // Reset action tracking
+        actionsUsedThisTurn = []
+        actionsRemainingThisTurn = 0
+
         // Generate random event
         if Int.random(in: 1...100) <= 40 { // 40% chance of event each turn
             generateRandomEvent()
         }
-        
+
         // Switch players
         currentPlayer = currentPlayer == .incumbent ? .challenger : .incumbent
-        
+
         // If both players have gone, advance turn
         if currentPlayer == .incumbent {
             currentTurn += 1
         }
-        
+
         // Check for game end
         if currentTurn > maxTurns {
             gamePhase = .ended

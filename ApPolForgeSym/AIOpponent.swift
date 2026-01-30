@@ -17,26 +17,42 @@ class AIOpponent {
         self.difficulty = difficulty ?? AppSettings.shared.aiDifficulty
     }
     
-    /// AI makes a decision about what action to take
+    /// AI makes a decision about what action(s) to take.
+    /// The AI gets the same number of actions per turn as the player (driven by maxActionsThisTurn).
     func makeDecision() async {
-        // Wait a moment to simulate thinking (use user's setting)
+        let actionsThisTurn = gameState.maxActionsThisTurn
         let aiSpeed = AppSettings.shared.aiSpeed
-        try? await Task.sleep(for: .seconds(aiSpeed))
-        
-        // AI Strategy Logic based on difficulty
-        let strategy = determineStrategy()
-        
-        switch strategy {
-        case .aggressive:
-            await executeAggressiveStrategy()
-        case .defensive:
-            await executeDefensiveStrategy()
-        case .balanced:
-            await executeBalancedStrategy()
-        case .fundraising:
-            await executeFundraisingStrategy()
-        case .multiState:
-            await executeMultiStateStrategy()
+
+        for actionIndex in 0..<actionsThisTurn {
+            // Check if AI can still afford any action
+            guard gameState.canAffordAnyAction(for: .challenger) else { break }
+
+            // Wait to simulate thinking
+            try? await Task.sleep(for: .seconds(aiSpeed))
+
+            let isFinal = (actionIndex == actionsThisTurn - 1)
+            let strategy = determineStrategy()
+
+            switch strategy {
+            case .aggressive:
+                await executeAggressiveStrategy(isFinalAction: isFinal)
+            case .defensive:
+                await executeDefensiveStrategy(isFinalAction: isFinal)
+            case .balanced:
+                await executeBalancedStrategy(isFinalAction: isFinal)
+            case .fundraising:
+                await executeFundraisingStrategy(isFinalAction: isFinal)
+            case .multiState:
+                await executeMultiStateStrategy(isFinalAction: isFinal)
+            }
+
+            // If endTurn was already called (e.g. by a fallback path), stop looping
+            guard gameState.currentPlayer == .challenger else { break }
+        }
+
+        // Safety: if the loop exited early without ending the turn, end it now
+        if gameState.currentPlayer == .challenger {
+            gameState.endTurn()
         }
     }
     
@@ -98,7 +114,7 @@ class AIOpponent {
         return .balanced
     }
     
-    private func executeAggressiveStrategy() async {
+    private func executeAggressiveStrategy(isFinalAction: Bool = true) async {
         let challenger = gameState.challenger
         
         // Smart targeting based on difficulty
@@ -120,10 +136,10 @@ class AIOpponent {
             }
         
         guard let targetState = targetStates.first else {
-            await executeBalancedStrategy()
+            await executeBalancedStrategy(isFinalAction: isFinalAction)
             return
         }
-        
+
         // Choose actions based on effectiveness and difficulty
         let aggressiveActions: [CampaignActionType]
         switch difficulty {
@@ -138,10 +154,10 @@ class AIOpponent {
         let availableActions = aggressiveActions.filter { challenger.campaignFunds >= $0.cost * 1.2 }
         
         guard let actionType = availableActions.first else {
-            await executeFundraisingStrategy()
+            await executeFundraisingStrategy(isFinalAction: isFinalAction)
             return
         }
-        
+
         let action = CampaignAction(
             type: actionType,
             targetState: actionType == .opposition ? nil : targetState,
@@ -151,10 +167,10 @@ class AIOpponent {
 
         reportAction(actionType: actionType, targetState: actionType == .opposition ? nil : targetState, strategy: .aggressive)
         gameState.executeAction(action)
-        gameState.endTurn()
+        if isFinalAction { gameState.endTurn() }
     }
 
-    private func executeDefensiveStrategy() async {
+    private func executeDefensiveStrategy(isFinalAction: Bool = true) async {
         let challenger = gameState.challenger
         
         // Find vulnerable states with smart prioritization
@@ -173,19 +189,19 @@ class AIOpponent {
             }
         
         guard let targetState = vulnerableStates.first else {
-            await executeBalancedStrategy()
+            await executeBalancedStrategy(isFinalAction: isFinalAction)
             return
         }
-        
+
         // Choose defensive actions
         let defensiveActions: [CampaignActionType] = [.townHall, .grassroots, .rally, .adCampaign]
         let availableActions = defensiveActions.filter { challenger.campaignFunds >= $0.cost * 1.2 }
         
         guard let actionType = availableActions.first else {
-            await executeFundraisingStrategy()
+            await executeFundraisingStrategy(isFinalAction: isFinalAction)
             return
         }
-        
+
         let action = CampaignAction(
             type: actionType,
             targetState: targetState,
@@ -195,10 +211,10 @@ class AIOpponent {
 
         reportAction(actionType: actionType, targetState: targetState, strategy: .defensive)
         gameState.executeAction(action)
-        gameState.endTurn()
+        if isFinalAction { gameState.endTurn() }
     }
 
-    private func executeBalancedStrategy() async {
+    private func executeBalancedStrategy(isFinalAction: Bool = true) async {
         let challenger = gameState.challenger
         
         // Smart mix of targets
@@ -228,22 +244,22 @@ class AIOpponent {
 
                 reportAction(actionType: actionType, targetState: targetState, strategy: .balanced)
                 gameState.executeAction(action)
-                gameState.endTurn()
+                if isFinalAction { gameState.endTurn() }
                 return
             }
         }
 
-        await executeFundraisingStrategy()
+        await executeFundraisingStrategy(isFinalAction: isFinalAction)
     }
 
-    private func executeMultiStateStrategy() async {
+    private func executeMultiStateStrategy(isFinalAction: Bool = true) async {
         // Expert strategy: target multiple similar states at once
         let challenger = gameState.challenger
         let costPerState = CampaignActionType.adCampaign.cost * 1.2
         let maxStates = min(3, Int(challenger.campaignFunds / costPerState))
         
         guard maxStates >= 2 else {
-            await executeBalancedStrategy()
+            await executeBalancedStrategy(isFinalAction: isFinalAction)
             return
         }
         
@@ -257,7 +273,7 @@ class AIOpponent {
             .prefix(maxStates)
         
         guard !targetStates.isEmpty else {
-            await executeAggressiveStrategy()
+            await executeAggressiveStrategy(isFinalAction: isFinalAction)
             return
         }
         
@@ -287,10 +303,10 @@ class AIOpponent {
         gameState.recentEvents.append(event)
 
         reportMultiStateAction(stateCount: targetStates.count, totalCost: totalCost)
-        gameState.endTurn()
+        if isFinalAction { gameState.endTurn() }
     }
 
-    private func executeFundraisingStrategy() async {
+    private func executeFundraisingStrategy(isFinalAction: Bool = true) async {
         let challenger = gameState.challenger
 
         if challenger.campaignFunds >= CampaignActionType.fundraiser.cost {
@@ -303,7 +319,7 @@ class AIOpponent {
 
             reportAction(actionType: .fundraiser, targetState: nil, strategy: .fundraising)
             gameState.executeAction(action)
-            gameState.endTurn()
+            if isFinalAction { gameState.endTurn() }
         } else {
             // Find cheapest effective action
             let cheapestAction = CampaignActionType.allCases
@@ -333,11 +349,11 @@ class AIOpponent {
 
                 reportAction(actionType: actionType, targetState: targetState, strategy: .fundraising)
                 gameState.executeAction(action)
-                gameState.endTurn()
+                if isFinalAction { gameState.endTurn() }
             } else {
                 // Completely broke - skip turn
                 gameState.lastAIAction = nil // No action taken
-                gameState.endTurn()
+                if isFinalAction { gameState.endTurn() }
             }
         }
     }

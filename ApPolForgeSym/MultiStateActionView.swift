@@ -254,9 +254,13 @@ struct MultiStateActionView: View {
         HapticsManager.shared.playSuccessFeedback()
         
         withAnimation {
-            gameState.endTurn()
+            if !gameState.canAffordAnyAction(for: gameState.currentPlayer) {
+                gameState.forceEndTurn()
+            } else {
+                gameState.useAction()
+            }
         }
-        
+
         isPresented = false
     }
 }

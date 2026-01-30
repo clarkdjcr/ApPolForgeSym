@@ -183,6 +183,14 @@ class StrategicAdvisor: ObservableObject {
         }
     }
     
+    /// Returns the recommended number of actions for this turn based on Critical/High recommendations.
+    func recommendedActionCount(for playerType: PlayerType) -> Int {
+        let recommendations = generateRecommendations(for: playerType)
+        let criticalCount = min(recommendations.filter({ $0.priority == .critical }).count, 2)
+        let highCount = min(recommendations.filter({ $0.priority == .high }).count, 1)
+        return min(1 + criticalCount + highCount, 4)
+    }
+
     private func identifyVulnerableStates(for playerType: PlayerType) -> [ElectoralState] {
         return gameState.states.filter { state in
             let ourSupport = playerType == .incumbent ? state.incumbentSupport : state.challengerSupport

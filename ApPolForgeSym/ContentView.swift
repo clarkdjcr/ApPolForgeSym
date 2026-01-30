@@ -312,6 +312,7 @@ struct GamePlayView: View {
     @State private var showingAIActionReport = false
     @State private var aiOpponent: AIOpponent?
     @StateObject private var shadowManager: ShadowBudgetManager
+    @StateObject private var strategicAdvisor: StrategicAdvisor
 
     var isPlayerTurn: Bool {
         if gameState.currentPlayer == .incumbent {
@@ -324,6 +325,7 @@ struct GamePlayView: View {
     init(gameState: GameState) {
         self._gameState = ObservedObject(wrappedValue: gameState)
         self._shadowManager = StateObject(wrappedValue: ShadowBudgetManager(gameState: gameState))
+        self._strategicAdvisor = StateObject(wrappedValue: StrategicAdvisor(gameState: gameState))
     }
     
     var body: some View {
@@ -358,6 +360,31 @@ struct GamePlayView: View {
                             showingAIActionReport = false
                         }
                     }
+                }
+
+                // Action counter for multi-action turns
+                if isPlayerTurn && gameState.maxActionsThisTurn > 1 {
+                    HStack(spacing: 12) {
+                        Label("Actions: \(gameState.actionsRemainingThisTurn)/\(gameState.maxActionsThisTurn)",
+                              systemImage: "bolt.fill")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+
+                        Spacer()
+
+                        Button("End Turn Early") {
+                            HapticsManager.shared.playTurnEndFeedback()
+                            gameState.forceEndTurn()
+                        }
+                        .font(.subheadline)
+                        .foregroundStyle(.red)
+                        .disabled(gameState.actionsRemainingThisTurn == gameState.maxActionsThisTurn)
+                    }
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
+                    .background(Color.blue.opacity(0.1))
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("Actions remaining: \(gameState.actionsRemainingThisTurn) of \(gameState.maxActionsThisTurn)")
                 }
 
                 // Tab selector
@@ -473,6 +500,7 @@ struct GamePlayView: View {
             }
             .onAppear {
                 aiOpponent = AIOpponent(gameState: gameState)
+                gameState.calculateActionsForTurn(advisor: strategicAdvisor)
                 checkForAITurn()
             }
             .onChange(of: gameState.currentPlayer) { oldPlayer, newPlayer in
@@ -480,6 +508,9 @@ struct GamePlayView: View {
 
                 // Process shadow budget for this turn
                 shadowManager.processTurn(for: gameState.currentPlayer)
+
+                // Calculate action budget for the new player's turn
+                gameState.calculateActionsForTurn(advisor: strategicAdvisor)
 
                 // Show AI action report if AI just finished their turn
                 if isPlayerTurn && gameState.lastAIAction != nil {
@@ -900,6 +931,14 @@ struct ActionsView: View {
                     Text(currentPlayer.nationalPolling.asPercent())
                         .fontWeight(.semibold)
                 }
+
+                HStack {
+                    Label("Actions Remaining", systemImage: "bolt.circle.fill")
+                    Spacer()
+                    Text("\(gameState.actionsRemainingThisTurn) of \(gameState.maxActionsThisTurn)")
+                        .fontWeight(.semibold)
+                        .foregroundStyle(gameState.actionsRemainingThisTurn > 0 ? .blue : .gray)
+                }
             } header: {
                 Text("Resources - \(currentPlayer.name)")
             }
@@ -914,7 +953,7 @@ struct ActionsView: View {
                         ActionRow(actionType: actionType, canAfford: currentPlayer.campaignFunds >= actionType.cost)
                     }
                     .buttonStyle(.plain)
-                    .disabled(currentPlayer.campaignFunds < actionType.cost)
+                    .disabled(currentPlayer.campaignFunds < actionType.cost || gameState.actionsRemainingThisTurn <= 0)
                 }
             }
         }
@@ -1145,7 +1184,7 @@ struct ActionDetailView: View {
     
     func executeAction() {
         HapticsManager.shared.playActionFeedback()
-        
+
         withAnimation {
             if needsStateSelection {
                 // Execute action on each selected state
@@ -1158,6 +1197,7 @@ struct ActionDetailView: View {
                             turn: gameState.currentTurn
                         )
                         gameState.executeAction(action)
+                        gameState.actionsUsedThisTurn.append(action)
                     }
                 }
             } else {
@@ -1169,18 +1209,24 @@ struct ActionDetailView: View {
                     turn: gameState.currentTurn
                 )
                 gameState.executeAction(action)
+                gameState.actionsUsedThisTurn.append(action)
             }
-            
-            gameState.endTurn()
+
+            // Check if player can afford anything else; if not, force end
+            if !gameState.canAffordAnyAction(for: gameState.currentPlayer) {
+                gameState.forceEndTurn()
+            } else {
+                gameState.useAction() // decrements; auto-ends turn if 0
+            }
         }
-        
+
         HapticsManager.shared.playSuccessFeedback()
-        
-        let message = selectedStates.count > 1 
+
+        let message = selectedStates.count > 1
             ? "\(actionType.name) executed in \(selectedStates.count) states"
             : "\(actionType.name) executed successfully"
         AccessibilityAnnouncement.announce(message)
-        
+
         isPresented = false
         onDismiss?()
     }
