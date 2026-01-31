@@ -99,7 +99,14 @@ class PersistenceManager {
     func loadAutoSave() throws -> GameSaveData {
         let data = try Data(contentsOf: autoSaveURL)
         let decoder = JSONDecoder()
-        return try decoder.decode(GameSaveData.self, from: data)
+        do {
+            return try decoder.decode(GameSaveData.self, from: data)
+        } catch {
+            // Migration guard: old save missing new ElectoralState fields — delete and rethrow
+            print("PersistenceManager: Save data incompatible (likely missing new state fields). Deleting old save.")
+            try? deleteAutoSave()
+            throw error
+        }
     }
     
     func hasAutoSave() -> Bool {

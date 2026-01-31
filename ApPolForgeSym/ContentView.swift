@@ -793,27 +793,134 @@ struct ShadowStatusIndicator: View {
 
 struct MapView: View {
     @ObservedObject var gameState: GameState
-    
-    var body: some View {
-        List {
-            Section("Battleground States") {
-                ForEach(gameState.states.filter { $0.isBattleground }) { state in
-                    StateRow(state: state)
-                }
-            }
-            
-            Section("Other States") {
-                ForEach(gameState.states.filter { !$0.isBattleground }) { state in
-                    StateRow(state: state)
-                }
+    @State private var selectedTierFilter: Int? = nil
+    @State private var searchText = ""
+
+    private var filteredStates: [ElectoralState] {
+        var result = gameState.states
+
+        // Apply tier filter
+        if let tier = selectedTierFilter {
+            result = result.filter { $0.competitivenessTier == tier }
+        }
+
+        // Apply search
+        if !searchText.isEmpty {
+            result = result.filter {
+                $0.name.localizedCaseInsensitiveContains(searchText) ||
+                $0.abbreviation.localizedCaseInsensitiveContains(searchText)
             }
         }
+
+        return result
+    }
+
+    private var battlegroundStates: [ElectoralState] {
+        filteredStates.filter { $0.isBattleground }
+    }
+
+    private var otherStates: [ElectoralState] {
+        filteredStates.filter { !$0.isBattleground }
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // Tier filter pills
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    TierFilterPill(label: "All", isSelected: selectedTierFilter == nil) {
+                        selectedTierFilter = nil
+                    }
+                    TierFilterPill(label: "Battleground", tier: 1, isSelected: selectedTierFilter == 1) {
+                        selectedTierFilter = 1
+                    }
+                    TierFilterPill(label: "Competitive", tier: 2, isSelected: selectedTierFilter == 2) {
+                        selectedTierFilter = 2
+                    }
+                    TierFilterPill(label: "Leaning", tier: 3, isSelected: selectedTierFilter == 3) {
+                        selectedTierFilter = 3
+                    }
+                    TierFilterPill(label: "Safe", tier: 4, isSelected: selectedTierFilter == 4) {
+                        selectedTierFilter = 4
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+            }
+
+            List {
+                if !battlegroundStates.isEmpty {
+                    Section("Battleground States (\(battlegroundStates.count))") {
+                        ForEach(battlegroundStates) { state in
+                            StateRow(state: state)
+                        }
+                    }
+                }
+
+                if !otherStates.isEmpty {
+                    Section("Other States (\(otherStates.count))") {
+                        ForEach(otherStates) { state in
+                            StateRow(state: state)
+                        }
+                    }
+                }
+
+                if filteredStates.isEmpty {
+                    ContentUnavailableView("No States Found", systemImage: "map", description: Text("Try adjusting your filter or search."))
+                }
+            }
+            .searchable(text: $searchText, prompt: "Search states")
+        }
+    }
+}
+
+struct TierFilterPill: View {
+    let label: String
+    var tier: Int? = nil
+    let isSelected: Bool
+    let action: () -> Void
+
+    private var tierColor: Color {
+        switch tier {
+        case 1: return .red
+        case 2: return .orange
+        case 3: return .yellow
+        case 4: return .green
+        default: return .blue
+        }
+    }
+
+    var body: some View {
+        Button(action: action) {
+            Text(label)
+                .font(.caption)
+                .fontWeight(isSelected ? .bold : .medium)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(isSelected ? tierColor.opacity(0.3) : Color.gray.opacity(0.15))
+                .foregroundStyle(isSelected ? tierColor : .secondary)
+                .clipShape(Capsule())
+                .overlay(
+                    Capsule()
+                        .stroke(isSelected ? tierColor : Color.clear, lineWidth: 1)
+                )
+        }
+        .buttonStyle(.plain)
     }
 }
 
 struct StateRow: View {
     let state: ElectoralState
-    
+
+    private func tierBadgeColor(for tier: Int) -> Color {
+        switch tier {
+        case 1: return .red
+        case 2: return .orange
+        case 3: return .yellow
+        default: return .green
+        }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
@@ -826,16 +933,19 @@ struct StateRow: View {
                 
                 Spacer()
                 
-                VStack(alignment: .trailing) {
+                VStack(alignment: .trailing, spacing: 4) {
                     Text("\(state.electoralVotes) EV")
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                    
-                    if state.isBattleground {
-                        Text("Battleground")
-                            .font(.caption2)
-                            .foregroundStyle(.orange)
-                    }
+
+                    Text(state.tierLabel)
+                        .font(.caption2)
+                        .fontWeight(.medium)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(tierBadgeColor(for: state.competitivenessTier).opacity(0.2))
+                        .foregroundStyle(tierBadgeColor(for: state.competitivenessTier))
+                        .clipShape(Capsule())
                 }
             }
             
@@ -1082,12 +1192,10 @@ struct ActionDetailView: View {
                                             Text("\(state.electoralVotes) EV")
                                                 .font(.caption2)
                                                 .foregroundStyle(.secondary)
-                                            
-                                            if state.isBattleground {
-                                                Text("• Battleground")
-                                                    .font(.caption2)
-                                                    .foregroundStyle(.orange)
-                                            }
+
+                                            Text("• \(state.tierLabel)")
+                                                .font(.caption2)
+                                                .foregroundStyle(state.competitivenessTier <= 2 ? .orange : .secondary)
                                         }
                                     }
                                     
@@ -1474,8 +1582,8 @@ struct ResultsView: View {
             gameState.currentPlayer = .incumbent
             gameState.states = GameState.createInitialStates()
             gameState.recentEvents = []
-            
-            // Reset players
+
+            // Reset players (funds come from CampaignDataLoader via Player.init)
             gameState.incumbent = Player(
                 type: .incumbent,
                 isAI: false,
@@ -1483,7 +1591,7 @@ struct ResultsView: View {
                 partyName: "Liberty Party",
                 partyColor: "#3498db"
             )
-            
+
             gameState.challenger = Player(
                 type: .challenger,
                 isAI: true,

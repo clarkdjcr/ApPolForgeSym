@@ -27,20 +27,27 @@ struct StateCampaignData: Codable, Identifiable {
     // Historical spending in this state
     var totalSpent: Double
     
-    init(stateId: UUID, electoralVotes: Int, isBattleground: Bool) {
+    init(stateId: UUID, electoralVotes: Int, isBattleground: Bool, stateName: String? = nil) {
         self.id = UUID()
         self.stateId = stateId
-        
-        // AI prediction based on state importance
-        let baseStaff = electoralVotes * (isBattleground ? 10 : 3)
-        let baseVolunteers = electoralVotes * (isBattleground ? 100 : 30)
-        
-        self.recommendedStaffPositions = baseStaff
+
+        // Try to use real data from CampaignDataLoader
+        if let name = stateName,
+           let staffing = CampaignDataLoader.shared.staffingData(for: name) {
+            self.recommendedStaffPositions = staffing.totalStaff
+            self.recommendedVolunteers = staffing.activeVolunteersPeak
+            self.fieldOffices = staffing.regionalOffices
+        } else {
+            // Fallback to formula-based calculation
+            let baseStaff = electoralVotes * (isBattleground ? 10 : 3)
+            let baseVolunteers = electoralVotes * (isBattleground ? 100 : 30)
+            self.recommendedStaffPositions = baseStaff
+            self.recommendedVolunteers = baseVolunteers
+            self.fieldOffices = 0
+        }
+
         self.currentStaffPositions = 0
-        self.recommendedVolunteers = baseVolunteers
         self.currentVolunteers = 0
-        
-        self.fieldOffices = 0
         self.phonebanks = 0
         self.canvassingTeams = 0
         self.totalSpent = 0.0

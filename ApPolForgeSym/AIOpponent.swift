@@ -122,7 +122,7 @@ class AIOpponent {
             .filter { state in
                 let margin = state.challengerSupport - state.incumbentSupport
                 let isCompetitive = margin > -15 && margin < 10
-                let isValuable = state.electoralVotes >= (difficulty == .easy ? 6 : 4)
+                let isValuable = state.electoralVotes >= (difficulty == .easy ? 6 : 3) || state.competitivenessTier <= 2
                 
                 return (state.isBattleground || isCompetitive) && isValuable
             }
@@ -366,7 +366,16 @@ class AIOpponent {
         let evWeight = Double(state.electoralVotes) / 3.0
         let battlegroundBonus = state.isBattleground ? 1.5 : 1.0
 
-        return (competitiveness * evWeight * battlegroundBonus)
+        // Factor in real ROI data: swing potential and ROI rating
+        let swingBonus = Double(state.swingPotentialScore) / 100.0
+        let roiBonus: Double = switch state.roiRating {
+        case "Critical": 1.5
+        case "High": 1.3
+        case "Medium": 1.1
+        default: 1.0
+        }
+
+        return (competitiveness * evWeight * battlegroundBonus * roiBonus) + swingBonus
     }
 
     private func reportAction(actionType: CampaignActionType, targetState: ElectoralState?, strategy: AIStrategy) {

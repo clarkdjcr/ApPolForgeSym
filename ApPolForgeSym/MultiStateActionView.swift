@@ -187,41 +187,44 @@ struct MultiStateActionView: View {
         
         for state in targetStates {
             guard let index = gameState.states.firstIndex(where: { $0.id == state.id }) else { continue }
-            
+
+            // State-specific effectiveness multiplier combined with multi-state efficiency bonus
+            let stateMult = gameState.states[index].effectivenessMultiplier * gameState.states[index].actionMultiplier(for: actionType) * efficiencyBonus
+
             // Apply effects based on action type
             switch actionType {
             case .rally:
                 if gameState.currentPlayer == .incumbent {
-                    gameState.states[index].incumbentSupport += Double.random(in: 1...4) * efficiencyBonus
-                    gameState.incumbent.momentum += Int(Double.random(in: 2...5) * efficiencyBonus)
+                    gameState.states[index].incumbentSupport += Double.random(in: 1...4) * stateMult
+                    gameState.incumbent.momentum += Int(Double.random(in: 2...5) * stateMult)
                 } else {
-                    gameState.states[index].challengerSupport += Double.random(in: 1...4) * efficiencyBonus
-                    gameState.challenger.momentum += Int(Double.random(in: 2...5) * efficiencyBonus)
+                    gameState.states[index].challengerSupport += Double.random(in: 1...4) * stateMult
+                    gameState.challenger.momentum += Int(Double.random(in: 2...5) * stateMult)
                 }
-                
+
             case .adCampaign:
                 if gameState.currentPlayer == .incumbent {
-                    gameState.states[index].incumbentSupport += Double.random(in: 2...6) * efficiencyBonus
+                    gameState.states[index].incumbentSupport += Double.random(in: 2...6) * stateMult
                 } else {
-                    gameState.states[index].challengerSupport += Double.random(in: 2...6) * efficiencyBonus
+                    gameState.states[index].challengerSupport += Double.random(in: 2...6) * stateMult
                 }
-                
+
             case .townHall:
                 if gameState.currentPlayer == .incumbent {
-                    gameState.states[index].incumbentSupport += Double.random(in: 1...3) * efficiencyBonus
+                    gameState.states[index].incumbentSupport += Double.random(in: 1...3) * stateMult
                     gameState.incumbent.nationalPolling += 0.5 * efficiencyBonus
                 } else {
-                    gameState.states[index].challengerSupport += Double.random(in: 1...3) * efficiencyBonus
+                    gameState.states[index].challengerSupport += Double.random(in: 1...3) * stateMult
                     gameState.challenger.nationalPolling += 0.5 * efficiencyBonus
                 }
-                
+
             case .grassroots:
                 if gameState.currentPlayer == .incumbent {
-                    gameState.states[index].incumbentSupport += Double.random(in: 1...2) * efficiencyBonus
+                    gameState.states[index].incumbentSupport += Double.random(in: 1...2) * stateMult
                 } else {
-                    gameState.states[index].challengerSupport += Double.random(in: 1...2) * efficiencyBonus
+                    gameState.states[index].challengerSupport += Double.random(in: 1...2) * stateMult
                 }
-                
+
             default:
                 break
             }
@@ -318,16 +321,14 @@ struct MultiStateSelectionRow: View {
                     Text(state.name)
                         .font(.headline)
                     
-                    if state.isBattleground {
-                        Text("BATTLEGROUND")
-                            .font(.caption2)
-                            .fontWeight(.bold)
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Color.orange)
-                            .clipShape(Capsule())
-                    }
+                    Text(state.tierLabel.uppercased())
+                        .font(.caption2)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(state.competitivenessTier <= 2 ? Color.orange : Color.gray)
+                        .clipShape(Capsule())
                     
                     Spacer()
                     

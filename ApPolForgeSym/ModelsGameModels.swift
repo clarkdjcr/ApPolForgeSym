@@ -39,10 +39,9 @@ struct Player: Identifiable, Codable {
         self.partyColor = partyColor
         self.personality = personality
         
-        // Starting values - Based on 2020 election cycle
-        // Incumbent had ~$1.1B, Challenger had ~$768M
-        // Starting at 20% of those amounts for game balance
-        self.campaignFunds = type == .incumbent ? 220_000_000 : 150_000_000
+        // Starting values derived from real campaign data (20% of total all-state budgets)
+        let funds = CampaignDataLoader.shared.recommendedStartingFunds()
+        self.campaignFunds = type == .incumbent ? funds.incumbent : funds.challenger
         self.momentum = type == .incumbent ? 5 : -5
         self.nationalPolling = type == .incumbent ? 48.0 : 46.0
     }
@@ -55,12 +54,21 @@ struct ElectoralState: Identifiable, Codable {
     let name: String
     let abbreviation: String
     let electoralVotes: Int
-    
+
     // Current state of competition
     var incumbentSupport: Double // 0 to 100
     var challengerSupport: Double // 0 to 100
     var undecided: Double // Remainder
-    
+
+    // Data-driven properties
+    var region: String
+    var competitivenessTier: Int // 1=Battleground, 2=Competitive, 3=Leaning, 4=Safe
+    var swingPotentialScore: Int // 0-100
+    var roiRating: String // Low/Medium/High/Critical
+    var spendEfficiency: String
+    var actionEffectiveness: [String: Int] // action rawValue -> 1-3 score
+    var mediaMarketCostIndex: Double
+
     var leaningToward: PlayerType? {
         if incumbentSupport > challengerSupport + 5 {
             return .incumbent
@@ -69,13 +77,50 @@ struct ElectoralState: Identifiable, Codable {
         }
         return nil
     }
-    
+
     var isBattleground: Bool {
         abs(incumbentSupport - challengerSupport) < 10
     }
-    
-    init(id: UUID = UUID(), name: String, abbreviation: String, electoralVotes: Int, 
-         incumbentSupport: Double, challengerSupport: Double) {
+
+    /// Effectiveness multiplier based on competitiveness tier + swing potential
+    var effectivenessMultiplier: Double {
+        let tierMultiplier: Double = switch competitivenessTier {
+        case 1: 1.4
+        case 2: 1.2
+        case 3: 0.9
+        default: 0.6
+        }
+        let swingBonus = Double(swingPotentialScore) / 100.0 * 0.2
+        return tierMultiplier + swingBonus
+    }
+
+    /// Action-specific multiplier from effectiveness scores (1-3)
+    func actionMultiplier(for actionType: CampaignActionType) -> Double {
+        let score = actionEffectiveness[actionType.rawValue] ?? 2
+        return switch score {
+        case 1: 0.6
+        case 3: 1.5
+        default: 1.0
+        }
+    }
+
+    /// Tier display label
+    var tierLabel: String {
+        switch competitivenessTier {
+        case 1: return "Battleground"
+        case 2: return "Competitive"
+        case 3: return "Leaning"
+        default: return "Safe"
+        }
+    }
+
+    init(id: UUID = UUID(), name: String, abbreviation: String, electoralVotes: Int,
+         incumbentSupport: Double, challengerSupport: Double,
+         region: String = "Unknown", competitivenessTier: Int = 3,
+         swingPotentialScore: Int = 50, roiRating: String = "Medium",
+         spendEfficiency: String = "Medium",
+         actionEffectiveness: [String: Int] = [:],
+         mediaMarketCostIndex: Double = 1.0) {
         self.id = id
         self.name = name
         self.abbreviation = abbreviation
@@ -83,6 +128,13 @@ struct ElectoralState: Identifiable, Codable {
         self.incumbentSupport = incumbentSupport
         self.challengerSupport = challengerSupport
         self.undecided = 100 - incumbentSupport - challengerSupport
+        self.region = region
+        self.competitivenessTier = competitivenessTier
+        self.swingPotentialScore = swingPotentialScore
+        self.roiRating = roiRating
+        self.spendEfficiency = spendEfficiency
+        self.actionEffectiveness = actionEffectiveness
+        self.mediaMarketCostIndex = mediaMarketCostIndex
     }
 }
 
@@ -152,6 +204,11 @@ enum CampaignActionType: String, Codable, CaseIterable, Identifiable {
         case .grassroots: return "network"
         case .opposition: return "doc.text.magnifyingglass"
         }
+    }
+
+    /// Cost adjusted by the state's media market cost index
+    func adjustedCost(for state: ElectoralState) -> Double {
+        return cost * state.mediaMarketCostIndex
     }
 }
 
@@ -297,26 +354,18 @@ class GameState: ObservableObject {
     }
     
     static func createInitialStates() -> [ElectoralState] {
+        let dataStates = CampaignDataLoader.shared.loadStates()
+        if !dataStates.isEmpty {
+            return dataStates
+        }
+        // Fallback if JSON not found (shouldn't happen in production)
         return [
-            // Swing States
-            ElectoralState(name: "Florida", abbreviation: "FL", electoralVotes: 29, incumbentSupport: 47, challengerSupport: 48),
-            ElectoralState(name: "Pennsylvania", abbreviation: "PA", electoralVotes: 20, incumbentSupport: 48, challengerSupport: 47),
-            ElectoralState(name: "Michigan", abbreviation: "MI", electoralVotes: 16, incumbentSupport: 46, challengerSupport: 48),
+            ElectoralState(name: "Florida", abbreviation: "FL", electoralVotes: 30, incumbentSupport: 47, challengerSupport: 48),
+            ElectoralState(name: "Pennsylvania", abbreviation: "PA", electoralVotes: 19, incumbentSupport: 48, challengerSupport: 47),
+            ElectoralState(name: "Michigan", abbreviation: "MI", electoralVotes: 15, incumbentSupport: 46, challengerSupport: 48),
             ElectoralState(name: "Wisconsin", abbreviation: "WI", electoralVotes: 10, incumbentSupport: 48, challengerSupport: 47),
             ElectoralState(name: "Arizona", abbreviation: "AZ", electoralVotes: 11, incumbentSupport: 47, challengerSupport: 48),
-            ElectoralState(name: "North Carolina", abbreviation: "NC", electoralVotes: 15, incumbentSupport: 48, challengerSupport: 47),
             ElectoralState(name: "Georgia", abbreviation: "GA", electoralVotes: 16, incumbentSupport: 47, challengerSupport: 48),
-            ElectoralState(name: "Nevada", abbreviation: "NV", electoralVotes: 6, incumbentSupport: 48, challengerSupport: 47),
-            
-            // Blue states
-            ElectoralState(name: "California", abbreviation: "CA", electoralVotes: 55, incumbentSupport: 58, challengerSupport: 36),
-            ElectoralState(name: "New York", abbreviation: "NY", electoralVotes: 29, incumbentSupport: 56, challengerSupport: 38),
-            ElectoralState(name: "Illinois", abbreviation: "IL", electoralVotes: 20, incumbentSupport: 54, challengerSupport: 40),
-            
-            // Red states
-            ElectoralState(name: "Texas", abbreviation: "TX", electoralVotes: 38, incumbentSupport: 43, challengerSupport: 52),
-            ElectoralState(name: "Ohio", abbreviation: "OH", electoralVotes: 18, incumbentSupport: 44, challengerSupport: 51),
-            ElectoralState(name: "Indiana", abbreviation: "IN", electoralVotes: 11, incumbentSupport: 40, challengerSupport: 55),
         ]
     }
     
@@ -471,63 +520,68 @@ class GameState: ObservableObject {
         } else {
             challenger.campaignFunds -= action.type.cost
         }
-        
-        // Apply effects based on action type
+
+        // State-targeted actions use effectiveness multipliers
+        // National actions (fundraiser, debate, opposition) are unaffected
         switch action.type {
         case .rally:
             if let state = action.targetState, let index = states.firstIndex(where: { $0.id == state.id }) {
+                let mult = states[index].effectivenessMultiplier * states[index].actionMultiplier(for: .rally)
                 if action.player == .incumbent {
-                    states[index].incumbentSupport += Double.random(in: 1...4)
-                    incumbent.momentum += Int.random(in: 2...5)
+                    states[index].incumbentSupport += Double.random(in: 1...4) * mult
+                    incumbent.momentum += Int(Double.random(in: 2...5) * mult)
                 } else {
-                    states[index].challengerSupport += Double.random(in: 1...4)
-                    challenger.momentum += Int.random(in: 2...5)
+                    states[index].challengerSupport += Double.random(in: 1...4) * mult
+                    challenger.momentum += Int(Double.random(in: 2...5) * mult)
                 }
             }
-            
+
         case .adCampaign:
             if let state = action.targetState, let index = states.firstIndex(where: { $0.id == state.id }) {
+                let mult = states[index].effectivenessMultiplier * states[index].actionMultiplier(for: .adCampaign)
                 if action.player == .incumbent {
-                    states[index].incumbentSupport += Double.random(in: 2...6)
+                    states[index].incumbentSupport += Double.random(in: 2...6) * mult
                 } else {
-                    states[index].challengerSupport += Double.random(in: 2...6)
+                    states[index].challengerSupport += Double.random(in: 2...6) * mult
                 }
             }
-            
+
         case .fundraiser:
             if action.player == .incumbent {
                 incumbent.campaignFunds += Double.random(in: 1_000_000...3_000_000)
             } else {
                 challenger.campaignFunds += Double.random(in: 1_000_000...3_000_000)
             }
-            
+
         case .townHall:
             if let state = action.targetState, let index = states.firstIndex(where: { $0.id == state.id }) {
+                let mult = states[index].effectivenessMultiplier * states[index].actionMultiplier(for: .townHall)
                 if action.player == .incumbent {
-                    states[index].incumbentSupport += Double.random(in: 1...3)
+                    states[index].incumbentSupport += Double.random(in: 1...3) * mult
                     incumbent.nationalPolling += 0.5
                 } else {
-                    states[index].challengerSupport += Double.random(in: 1...3)
+                    states[index].challengerSupport += Double.random(in: 1...3) * mult
                     challenger.nationalPolling += 0.5
                 }
             }
-            
+
         case .debate:
             if action.player == .incumbent {
                 incumbent.momentum += Int.random(in: 3...8)
             } else {
                 challenger.momentum += Int.random(in: 3...8)
             }
-            
+
         case .grassroots:
             if let state = action.targetState, let index = states.firstIndex(where: { $0.id == state.id }) {
+                let mult = states[index].effectivenessMultiplier * states[index].actionMultiplier(for: .grassroots)
                 if action.player == .incumbent {
-                    states[index].incumbentSupport += Double.random(in: 1...2)
+                    states[index].incumbentSupport += Double.random(in: 1...2) * mult
                 } else {
-                    states[index].challengerSupport += Double.random(in: 1...2)
+                    states[index].challengerSupport += Double.random(in: 1...2) * mult
                 }
             }
-            
+
         case .opposition:
             if action.player == .incumbent {
                 challenger.nationalPolling -= Double.random(in: 0.5...2.0)

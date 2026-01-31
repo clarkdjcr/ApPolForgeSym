@@ -26,38 +26,45 @@ class StrategicAdvisor: ObservableObject {
             let incumbentData = StateCampaignData(
                 stateId: state.id,
                 electoralVotes: state.electoralVotes,
-                isBattleground: state.isBattleground
+                isBattleground: state.isBattleground,
+                stateName: state.name
             )
             let challengerData = StateCampaignData(
                 stateId: state.id,
                 electoralVotes: state.electoralVotes,
-                isBattleground: state.isBattleground
+                isBattleground: state.isBattleground,
+                stateName: state.name
             )
-            
+
             incumbentInfrastructure[state.id] = incumbentData
             challengerInfrastructure[state.id] = challengerData
         }
     }
     
-    /// Update AI predictions for staffing based on current game state
+    /// Update AI predictions for staffing based on current game state and real weekly pacing data
     func updateStaffingPredictions(for playerType: PlayerType) {
-        let weeksRemaining = gameState.maxTurns - gameState.currentTurn
+        let currentWeek = gameState.currentTurn
+        let weeksRemaining = gameState.maxTurns - currentWeek
 
         for state in gameState.states {
             guard var data = (playerType == .incumbent ? incumbentInfrastructure : challengerInfrastructure)[state.id] else { continue }
 
-            // AI prediction: more staff needed in competitive states and as election nears
-            let competitivenessMultiplier = state.isBattleground ? 2.0 : 1.0
-            let urgencyMultiplier = 1.0 + (1.0 - Double(weeksRemaining) / Double(gameState.maxTurns))
+            // Try to use real weekly pacing targets from campaign data
+            if let pacing = CampaignDataLoader.shared.weeklyTarget(for: state.name, week: currentWeek) {
+                data.recommendedStaffPositions = pacing.staff
+                data.recommendedVolunteers = pacing.volunteers
+            } else {
+                // Fallback to formula-based prediction
+                let competitivenessMultiplier = state.isBattleground ? 2.0 : 1.0
+                let urgencyMultiplier = 1.0 + (1.0 - Double(weeksRemaining) / Double(gameState.maxTurns))
 
-            // Base calculation on state size and competitiveness
-            let baseStaff = state.electoralVotes * 8
-            data.recommendedStaffPositions = Int(Double(baseStaff) * competitivenessMultiplier * urgencyMultiplier)
+                let baseStaff = state.electoralVotes * 8
+                data.recommendedStaffPositions = Int(Double(baseStaff) * competitivenessMultiplier * urgencyMultiplier)
 
-            let baseVolunteers = state.electoralVotes * 80
-            data.recommendedVolunteers = Int(Double(baseVolunteers) * competitivenessMultiplier * urgencyMultiplier)
+                let baseVolunteers = state.electoralVotes * 80
+                data.recommendedVolunteers = Int(Double(baseVolunteers) * competitivenessMultiplier * urgencyMultiplier)
+            }
 
-            // Update infrastructure
             if playerType == .incumbent {
                 incumbentInfrastructure[state.id] = data
             } else {
@@ -65,7 +72,6 @@ class StrategicAdvisor: ObservableObject {
             }
         }
 
-        // Also update current staffing levels
         updateCurrentInfrastructure(for: playerType)
     }
 
