@@ -155,10 +155,10 @@ struct SetupView: View {
                             }
                             .padding()
                                                         .background {
-                                                            #if os(iOS)
-                                                            Color(uiColor: .systemGray6)
-                                                            #else
+                                                            #if os(macOS)
                                                             Color(nsColor: .quaternaryLabelColor)
+                                                            #else
+                                                            Color(uiColor: .systemGray6)
                                                             #endif
                                                         }
                                                         .clipShape(RoundedRectangle(cornerRadius: 12)).clipShape(RoundedRectangle(cornerRadius: 12))
