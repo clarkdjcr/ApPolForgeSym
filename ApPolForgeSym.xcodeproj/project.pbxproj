@@ -514,7 +514,8 @@
 				ENABLE_RESOURCE_ACCESS_USB = YES;
 				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Campaign Management";
+				INFOPLIST_KEY_CFBundleDisplayName = "Campaign Manager 2026";
+				INFOPLIST_KEY_CFBundleName = "Campaign Manager 2026";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.role-playing-games";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -575,7 +576,8 @@
 				ENABLE_RESOURCE_ACCESS_USB = YES;
 				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Campaign Management";
+				INFOPLIST_KEY_CFBundleDisplayName = "Campaign Manager 2026";
+				INFOPLIST_KEY_CFBundleName = "Campaign Manager 2026";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.role-playing-games";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
