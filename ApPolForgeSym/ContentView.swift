@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Charts
 #if canImport(UIKit)
 import UIKit
 #endif
@@ -999,6 +1000,87 @@ struct StateRow: View {
     }
 }
 
+// MARK: - Electoral Vote Trend Chart
+
+struct ElectoralVoteTrendChart: View {
+    @ObservedObject var gameState: GameState
+
+    #if os(iOS) || os(tvOS)
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    #endif
+
+    private var chartHeight: CGFloat {
+        #if os(visionOS)
+        return 200
+        #elseif os(macOS)
+        return 180
+        #elseif os(iOS) || os(tvOS)
+        return horizontalSizeClass == .compact ? 120 : 180
+        #else
+        return 180
+        #endif
+    }
+
+    var body: some View {
+        Chart {
+            ForEach(gameState.electoralVoteHistory) { snapshot in
+                LineMark(
+                    x: .value("Week", snapshot.turn),
+                    y: .value("Electoral Votes", snapshot.incumbentEV),
+                    series: .value("Candidate", gameState.incumbent.name)
+                )
+                .foregroundStyle(Color.incumbentBlue)
+                .interpolationMethod(.catmullRom)
+                .symbol(Circle())
+
+                LineMark(
+                    x: .value("Week", snapshot.turn),
+                    y: .value("Electoral Votes", snapshot.challengerEV),
+                    series: .value("Candidate", gameState.challenger.name)
+                )
+                .foregroundStyle(Color.challengerRed)
+                .interpolationMethod(.catmullRom)
+                .symbol(Circle())
+            }
+
+            RuleMark(y: .value("Win Threshold", 270))
+                .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 3]))
+                .foregroundStyle(.gray)
+                .annotation(position: .top, alignment: .leading) {
+                    Text("270 to win")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+        }
+        .chartXScale(domain: 0...20)
+        .chartYScale(domain: 0...538)
+        .chartXAxis {
+            AxisMarks(values: .stride(by: 5)) { value in
+                AxisGridLine()
+                AxisValueLabel {
+                    if let intValue = value.as(Int.self) {
+                        Text("W\(intValue)")
+                    }
+                }
+            }
+        }
+        .chartForegroundStyleScale([
+            gameState.incumbent.name: Color.incumbentBlue,
+            gameState.challenger.name: Color.challengerRed
+        ])
+        .chartLegend(position: .bottom)
+        .frame(height: chartHeight)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Electoral vote trend chart")
+        .accessibilityValue({
+            if let latest = gameState.electoralVoteHistory.last {
+                return "\(gameState.incumbent.name) \(latest.incumbentEV) electoral votes, \(gameState.challenger.name) \(latest.challengerEV) electoral votes, week \(latest.turn)"
+            }
+            return "No data"
+        }())
+    }
+}
+
 // MARK: - Actions View
 
 struct ActionsView: View {
@@ -1012,6 +1094,13 @@ struct ActionsView: View {
     
     var body: some View {
         List {
+            if gameState.electoralVoteHistory.count >= 2 {
+                Section("Electoral Vote Trend") {
+                    ElectoralVoteTrendChart(gameState: gameState)
+                        .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
+                }
+            }
+
             Section {
                 HStack {
                     Label("Campaign Funds", systemImage: "dollarsign.circle.fill")
@@ -1582,6 +1671,7 @@ struct ResultsView: View {
             gameState.currentPlayer = .incumbent
             gameState.states = GameState.createInitialStates()
             gameState.recentEvents = []
+            gameState.electoralVoteHistory = []
 
             // Reset players (funds come from CampaignDataLoader via Player.init)
             gameState.incumbent = Player(

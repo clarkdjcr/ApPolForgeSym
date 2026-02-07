@@ -300,6 +300,22 @@ struct AIActionReport: Identifiable {
     }
 }
 
+// MARK: - Electoral Vote Snapshot
+
+struct ElectoralVoteSnapshot: Identifiable, Codable {
+    let id: UUID
+    let turn: Int           // 0 = game start, 1-20 = weekly snapshots
+    let incumbentEV: Int
+    let challengerEV: Int
+
+    init(id: UUID = UUID(), turn: Int, incumbentEV: Int, challengerEV: Int) {
+        self.id = id
+        self.turn = turn
+        self.incumbentEV = incumbentEV
+        self.challengerEV = challengerEV
+    }
+}
+
 // MARK: - Game State
 
 @MainActor
@@ -316,6 +332,7 @@ class GameState: ObservableObject {
     @Published var actionsRemainingThisTurn: Int = 1
     @Published var maxActionsThisTurn: Int = 1
     @Published var actionsUsedThisTurn: [CampaignAction] = []
+    @Published var electoralVoteHistory: [ElectoralVoteSnapshot] = []
 
     enum GamePhase: String {
         case setup
@@ -371,6 +388,7 @@ class GameState: ObservableObject {
     
     func startGame() {
         gamePhase = .playing
+        recordElectoralVoteSnapshot(forTurn: 0)
     }
     
     func calculateElectoralVotes() -> (incumbent: Int, challenger: Int) {
@@ -387,7 +405,14 @@ class GameState: ObservableObject {
         
         return (incumbentVotes, challengerVotes)
     }
-    
+
+    func recordElectoralVoteSnapshot(forTurn turn: Int) {
+        let votes = calculateElectoralVotes()
+        electoralVoteHistory.append(
+            ElectoralVoteSnapshot(turn: turn, incumbentEV: votes.incumbent, challengerEV: votes.challenger)
+        )
+    }
+
     /// Calculate how many actions the current player gets this turn based on strategic recommendations.
     func calculateActionsForTurn(advisor: StrategicAdvisor) {
         let recommendations = advisor.generateRecommendations(for: currentPlayer)
@@ -442,6 +467,7 @@ class GameState: ObservableObject {
         // If both players have gone, advance turn
         if currentPlayer == .incumbent {
             currentTurn += 1
+            recordElectoralVoteSnapshot(forTurn: currentTurn - 1)
         }
 
         // Check for game end

@@ -17,8 +17,14 @@ struct GameSaveData: Codable {
     let maxTurns: Int
     let currentPlayer: PlayerType
     let recentEvents: [GameEvent]
+    let electoralVoteHistory: [ElectoralVoteSnapshot]
     let savedDate: Date
-    
+
+    enum CodingKeys: String, CodingKey {
+        case incumbent, challenger, states, currentTurn, maxTurns
+        case currentPlayer, recentEvents, electoralVoteHistory, savedDate
+    }
+
     init(from gameState: GameState) {
         self.incumbent = gameState.incumbent
         self.challenger = gameState.challenger
@@ -27,9 +33,23 @@ struct GameSaveData: Codable {
         self.maxTurns = gameState.maxTurns
         self.currentPlayer = gameState.currentPlayer
         self.recentEvents = gameState.recentEvents
+        self.electoralVoteHistory = gameState.electoralVoteHistory
         self.savedDate = Date()
     }
-    
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        incumbent = try container.decode(Player.self, forKey: .incumbent)
+        challenger = try container.decode(Player.self, forKey: .challenger)
+        states = try container.decode([ElectoralState].self, forKey: .states)
+        currentTurn = try container.decode(Int.self, forKey: .currentTurn)
+        maxTurns = try container.decode(Int.self, forKey: .maxTurns)
+        currentPlayer = try container.decode(PlayerType.self, forKey: .currentPlayer)
+        recentEvents = try container.decode([GameEvent].self, forKey: .recentEvents)
+        electoralVoteHistory = try container.decodeIfPresent([ElectoralVoteSnapshot].self, forKey: .electoralVoteHistory) ?? []
+        savedDate = try container.decode(Date.self, forKey: .savedDate)
+    }
+
     @MainActor
     func apply(to gameState: GameState) {
         gameState.incumbent = incumbent
@@ -39,6 +59,7 @@ struct GameSaveData: Codable {
         gameState.maxTurns = maxTurns
         gameState.currentPlayer = currentPlayer
         gameState.recentEvents = recentEvents
+        gameState.electoralVoteHistory = electoralVoteHistory
         gameState.gamePhase = .playing
     }
 }
