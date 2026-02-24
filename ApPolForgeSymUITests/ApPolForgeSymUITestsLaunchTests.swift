@@ -9,10 +9,6 @@ import XCTest
 
 final class ApPolForgeSymUITestsLaunchTests: XCTestCase {
 
-    override class var runsForEachTargetApplicationUIConfiguration: Bool {
-        true
-    }
-
     override func setUpWithError() throws {
         continueAfterFailure = false
     }
@@ -22,8 +18,8 @@ final class ApPolForgeSymUITestsLaunchTests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
 
-        // Insert steps here to perform after app launch but before taking a screenshot,
-        // such as logging into a test account or navigating somewhere in the app
+        // Wait for the app's root view to appear before screenshotting
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 15))
 
         let attachment = XCTAttachment(screenshot: app.screenshot())
         attachment.name = "Launch Screen"

@@ -32,6 +32,8 @@
 		9273A5822F16FD4300570EC1 /* AI_AGENT_INTEGRATION.md in Resources */ = {isa = PBXBuildFile; fileRef = 9273A5812F16FD4300570EC1 /* AI_AGENT_INTEGRATION.md */; };
 		9273A5862F16FD9100570EC1 /* IMPLEMENTATION_SUMMARY.md in Resources */ = {isa = PBXBuildFile; fileRef = 9273A5852F16FD9100570EC1 /* IMPLEMENTATION_SUMMARY.md */; };
 		9273A58A2F16FDE900570EC1 /* ARCHITECTURE_DIAGRAM.md in Resources */ = {isa = PBXBuildFile; fileRef = 9273A5892F16FDE900570EC1 /* ARCHITECTURE_DIAGRAM.md */; };
+		AA000004000000000000001A /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = AA000002000000000000001A /* FirebaseCore */; };
+		AA000005000000000000001A /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = AA000003000000000000001A /* FirebaseFirestore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,7 +64,7 @@
 		9252FE422F25765B00FB8DA6 /* App_Iccon_Design_Guide.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = App_Iccon_Design_Guide.md; sourceTree = "<group>"; };
 		9252FE442F2578A700FB8DA6 /* Privacy_Policy.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Privacy_Policy.md; sourceTree = "<group>"; };
 		9252FE462F25797A00FB8DA6 /* Screenshots_Design_Guide.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Screenshots_Design_Guide.md; sourceTree = "<group>"; };
-		926BE5B82F1487CD000DD882 /* ApPolForgeSym.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ApPolForgeSym.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		926BE5B82F1487CD000DD882 /* ApPolForgeSym.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = ApPolForgeSym.app; path = "Campaign Manager 2026.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		926BE5CA2F1487CE000DD882 /* ApPolForgeSymTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApPolForgeSymTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		926BE5D42F1487CE000DD882 /* ApPolForgeSymUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApPolForgeSymUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		926DD1592F1555E000E47319 /* ApPolForgeSym.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = ApPolForgeSym.xcdatamodel; sourceTree = "<group>"; };
@@ -105,6 +107,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA000004000000000000001A /* FirebaseCore in Frameworks */,
+				AA000005000000000000001A /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -190,6 +194,8 @@
 			);
 			name = ApPolForgeSym;
 			packageProductDependencies = (
+				AA000002000000000000001A /* FirebaseCore */,
+				AA000003000000000000001A /* FirebaseFirestore */,
 			);
 			productName = ApPolForgeSym;
 			productReference = 926BE5B82F1487CD000DD882 /* ApPolForgeSym.app */;
@@ -273,6 +279,9 @@
 			);
 			mainGroup = 926BE5AF2F1487CD000DD882;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				AA000001000000000000001A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 926BE5B92F1487CD000DD882 /* Products */;
 			projectDirPath = "";
@@ -722,6 +731,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		AA000001000000000000001A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		AA000002000000000000001A /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AA000001000000000000001A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		AA000003000000000000001A /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AA000001000000000000001A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		926DD1582F1555E000E47319 /* ApPolForgeSym.xcdatamodeld */ = {
