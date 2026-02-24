@@ -83,6 +83,7 @@ struct SetupView: View {
     @State private var showingSettings = false
     @State private var showingHelp = false
     @State private var showingAIDifficulty = false
+    @State private var showingCandidateSetup = false
     
     var body: some View {
         NavigationStack {
@@ -94,42 +95,41 @@ struct SetupView: View {
                 )
                 .ignoresSafeArea()
                 
+                ScrollView {
                 VStack(spacing: 30) {
                     VStack(spacing: 10) {
                         Image(systemName: "building.columns.fill")
                             .font(.system(size: 80))
                             .foregroundStyle(.tint)
                             .accessibilityLabel("Campaign Manager 2026")
-                        
+
                         Text("Campaign Manager 2026")
                             .font(.largeTitle)
                             .fontWeight(.bold)
-                        
+
                         Text("The Race for the White House")
                             .font(.title3)
                             .foregroundStyle(.secondary)
                     }
                     .padding(.top, 60)
-                    
+
                     VStack(alignment: .leading, spacing: 20) {
                         CandidateCard(player: gameState.incumbent)
                             .accessibilityElement(children: .combine)
                             .accessibilityLabel(gameState.incumbent.accessibilityDescription)
-                        
+
                         Text("VS")
                             .font(.title)
                             .fontWeight(.bold)
                             .frame(maxWidth: .infinity)
                             .accessibilityHidden(true)
-                        
+
                         CandidateCard(player: gameState.challenger)
                             .accessibilityElement(children: .combine)
                             .accessibilityLabel(gameState.challenger.accessibilityDescription)
                     }
                     .padding(.horizontal)
-                    
-                    Spacer()
-                    
+
                     VStack(spacing: 15) {
                         // AI Difficulty Selection
                         Button {
@@ -171,7 +171,41 @@ struct SetupView: View {
                             .font(.callout)
                             .multilineTextAlignment(.center)
                             .foregroundStyle(.secondary)
-                        
+
+                        // Custom Candidate button — opens real-world candidate tracker
+                        Button {
+                            HapticsManager.shared.playSelectionFeedback()
+                            showingCandidateSetup = true
+                        } label: {
+                            HStack {
+                                Image(systemName: "person.badge.plus")
+                                    .font(.title3)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Track Custom Candidate")
+                                        .font(.headline)
+                                    Text(gameState.userCandidates.isEmpty
+                                         ? "Add a real-world race to monitor polls & issues"
+                                         : "\(gameState.userCandidates.count) candidate\(gameState.userCandidates.count == 1 ? "" : "s") tracked")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .foregroundStyle(.secondary)
+                            }
+                            .padding()
+                            #if os(macOS)
+                            .background(Color(nsColor: .quaternaryLabelColor))
+                            #else
+                            .background(Color(uiColor: .systemGray6))
+                            #endif
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.horizontal)
+                        .accessibilityLabel("Track Custom Candidate")
+                        .accessibilityHint("Add a real-world candidate to monitor live polls and issues")
+
                         Button {
                             HapticsManager.shared.playActionFeedback()
                             withAnimation {
@@ -193,6 +227,7 @@ struct SetupView: View {
                     }
                     .padding(.bottom, 40)
                 }
+                } // end ScrollView
             }
             .navigationTitle("Setup")
             .toolbar {
@@ -241,6 +276,9 @@ struct SetupView: View {
             }
             .sheet(isPresented: $showingHelp) {
                 QuickTipsView()
+            }
+            .sheet(isPresented: $showingCandidateSetup) {
+                CandidateSetupView(gameState: gameState)
             }
             .confirmationDialog("Select AI Difficulty", isPresented: $showingAIDifficulty, titleVisibility: .visible) {
                 ForEach(AIDifficulty.allCases, id: \.self) { difficulty in
@@ -388,21 +426,47 @@ struct GamePlayView: View {
                     .accessibilityLabel("Actions remaining: \(gameState.actionsRemainingThisTurn) of \(gameState.maxActionsThisTurn)")
                 }
 
-                // Tab selector
-                Picker("View", selection: $selectedTab) {
-                    Text("Map").tag(0)
-                    Text("Actions").tag(1)
-                    Text("Strategy").tag(2)
-                    Text("Shadow").tag(3)
-                    Text("Events").tag(4)
+                // Tab selector — scrollable row to fit all 8 tabs
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 0) {
+                        ForEach([
+                            (0, "Map"),
+                            (1, "Actions"),
+                            (2, "Strategy"),
+                            (3, "Shadow"),
+                            (4, "Events"),
+                            (5, "Polls"),
+                            (6, "Issues"),
+                            (7, "Email")
+                        ], id: \.0) { (tag, label) in
+                            Button {
+                                HapticsManager.shared.playSelectionFeedback()
+                                selectedTab = tag
+                            } label: {
+                                Text(label)
+                                    .font(.subheadline)
+                                    .fontWeight(selectedTab == tag ? .semibold : .regular)
+                                    .padding(.horizontal, 14)
+                                    .padding(.vertical, 8)
+                                    .background(selectedTab == tag ? Color.accentColor : Color.clear)
+                                    .foregroundStyle(selectedTab == tag ? .white : .primary)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.horizontal, 8)
                 }
-                .pickerStyle(.segmented)
-                .padding()
+                .padding(.vertical, 4)
+                #if os(macOS)
+                .background(Color(nsColor: .controlBackgroundColor))
+                #else
+                .background(Color(uiColor: .systemGray6))
+                #endif
                 .onChange(of: selectedTab) { _, _ in
                     HapticsManager.shared.playSelectionFeedback()
                 }
-                
-                // Content
+
                 // Content - Only render selected tab to avoid performance issues
                 Group {
                     switch selectedTab {
@@ -416,6 +480,12 @@ struct GamePlayView: View {
                         ShadowBudgetView(gameState: gameState, shadowManager: shadowManager)
                     case 4:
                         EventsView(gameState: gameState)
+                    case 5:
+                        LivePollDashboardView(gameState: gameState)
+                    case 6:
+                        IssueTrackerView(gameState: gameState)
+                    case 7:
+                        EmailComposerView(gameState: gameState)
                     default:
                         MapView(gameState: gameState)
                     }
