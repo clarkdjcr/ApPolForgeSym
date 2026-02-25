@@ -84,7 +84,8 @@ struct SetupView: View {
     @State private var showingHelp = false
     @State private var showingAIDifficulty = false
     @State private var showingCandidateSetup = false
-    
+    @State private var showingRosterBrowser = false
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -206,6 +207,34 @@ struct SetupView: View {
                         .accessibilityLabel("Track Real 2026 Candidate")
                         .accessibilityHint("Add a real-world candidate to monitor live polls and issues")
 
+                        Button { showingRosterBrowser = true } label: {
+                            HStack {
+                                Image(systemName: "list.bullet.rectangle.portrait")
+                                    .font(.title3)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Browse 2026 Race Database")
+                                        .font(.headline)
+                                    Text("View all available Senate & Governor candidates")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .foregroundStyle(.secondary)
+                            }
+                            .padding()
+                            #if os(macOS)
+                            .background(Color(nsColor: .quaternaryLabelColor))
+                            #else
+                            .background(Color(uiColor: .systemGray6))
+                            #endif
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.horizontal)
+                        .accessibilityLabel("Browse 2026 Race Database")
+                        .accessibilityHint("View seeded Senate and Governor candidates for 2026")
+
                         Button {
                             HapticsManager.shared.playActionFeedback()
                             withAnimation {
@@ -279,6 +308,9 @@ struct SetupView: View {
             }
             .sheet(isPresented: $showingCandidateSetup) {
                 CandidateSetupView(gameState: gameState)
+            }
+            .sheet(isPresented: $showingRosterBrowser) {
+                CandidateRosterBrowserView()
             }
             .confirmationDialog("Select AI Difficulty", isPresented: $showingAIDifficulty, titleVisibility: .visible) {
                 ForEach(AIDifficulty.allCases, id: \.self) { difficulty in

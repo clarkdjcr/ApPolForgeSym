@@ -28,6 +28,24 @@ import Foundation
 import Combine
 import FirebaseFirestore
 
+// MARK: - Candidate Roster
+
+struct CandidateRoster {
+    let candidateDem: String
+    let candidateRep: String
+    let demParty: PartyAffiliation
+    let repParty: PartyAffiliation
+    let demIncumbent: Bool
+    let repIncumbent: Bool
+}
+
+struct RosterEntry: Identifiable {
+    let id: String               // raceId, e.g. "AZ-senate"
+    let stateAbbreviation: String
+    let raceLabel: String        // "Senate" or "Governor"
+    let roster: CandidateRoster
+}
+
 // MARK: - Firestore Service
 
 @MainActor
@@ -153,6 +171,57 @@ final class FirestoreService: ObservableObject {
             persistCache()
         } catch {
             lastError = error.localizedDescription
+        }
+    }
+
+    /// Fetch autofill candidate names, parties, and incumbent status for a race.
+    /// Returns nil when firestoreEnabled is false or the race has no roster document.
+    func fetchCandidateRoster(raceId: String) async -> CandidateRoster? {
+        guard AppSettings.shared.firestoreEnabled else { return nil }
+        do {
+            let doc = try await db.collection("candidateRoster").document(raceId).getDocument()
+            guard doc.exists, let data = doc.data() else { return nil }
+            return CandidateRoster(
+                candidateDem: data["candidateDem"] as? String ?? "",
+                candidateRep: data["candidateRep"] as? String ?? "",
+                demParty:     PartyAffiliation(rawValue: data["demParty"] as? String ?? "") ?? .democratic,
+                repParty:     PartyAffiliation(rawValue: data["repParty"] as? String ?? "") ?? .republican,
+                demIncumbent: data["demIncumbent"] as? Bool ?? false,
+                repIncumbent: data["repIncumbent"] as? Bool ?? false
+            )
+        } catch {
+            lastError = error.localizedDescription
+            return nil
+        }
+    }
+
+    /// Fetch all seeded candidateRoster documents for the browser sheet.
+    func fetchAllCandidateRosters() async -> [RosterEntry] {
+        guard AppSettings.shared.firestoreEnabled else { return [] }
+        do {
+            let snapshot = try await db.collection("candidateRoster").getDocuments()
+            return snapshot.documents.compactMap { doc in
+                let data = doc.data()
+                let raceId = doc.documentID
+                let parts = raceId.split(separator: "-", maxSplits: 1).map(String.init)
+                guard parts.count == 2 else { return nil }
+                let stateAbbrev = parts[0].uppercased()
+                let raceLabel = parts[1].capitalized
+                let roster = CandidateRoster(
+                    candidateDem: data["candidateDem"] as? String ?? "",
+                    candidateRep: data["candidateRep"] as? String ?? "",
+                    demParty:     PartyAffiliation(rawValue: data["demParty"] as? String ?? "") ?? .democratic,
+                    repParty:     PartyAffiliation(rawValue: data["repParty"] as? String ?? "") ?? .republican,
+                    demIncumbent: data["demIncumbent"] as? Bool ?? false,
+                    repIncumbent: data["repIncumbent"] as? Bool ?? false
+                )
+                return RosterEntry(id: raceId, stateAbbreviation: stateAbbrev,
+                                   raceLabel: raceLabel, roster: roster)
+            }
+            .sorted { $0.stateAbbreviation < $1.stateAbbreviation }
+        } catch {
+            lastError = error.localizedDescription
+            return []
         }
     }
 
