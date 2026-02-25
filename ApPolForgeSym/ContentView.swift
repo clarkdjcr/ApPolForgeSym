@@ -181,7 +181,7 @@ struct SetupView: View {
                                 Image(systemName: "person.badge.plus")
                                     .font(.title3)
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text("Track Custom Candidate")
+                                    Text("Track Real 2026 Candidate")
                                         .font(.headline)
                                     Text(gameState.userCandidates.isEmpty
                                          ? "Add a real-world race to monitor polls & issues"
@@ -203,7 +203,7 @@ struct SetupView: View {
                         }
                         .buttonStyle(.plain)
                         .padding(.horizontal)
-                        .accessibilityLabel("Track Custom Candidate")
+                        .accessibilityLabel("Track Real 2026 Candidate")
                         .accessibilityHint("Add a real-world candidate to monitor live polls and issues")
 
                         Button {

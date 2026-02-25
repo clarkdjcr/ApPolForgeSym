@@ -93,6 +93,7 @@ struct CandidateSetupView: View {
     // Autofill state
     @State private var isLoadingRoster: Bool = false
     @State private var rosterLoaded: Bool = false
+    @State private var fetchedRoster: CandidateRoster? = nil
 
     // Candidate contact info
     @State private var campaignWebsite: String = ""
@@ -135,6 +136,7 @@ struct CandidateSetupView: View {
                         // Reset to first race type for the new level
                         selectedRaceType = filteredRaceTypes.first ?? .presidential
                         rosterLoaded = false
+                        fetchedRoster = nil
                     }
                 } header: {
                     Text("Campaign Level")
@@ -150,6 +152,7 @@ struct CandidateSetupView: View {
                     }
                     .onChange(of: selectedRaceType) { _, _ in
                         rosterLoaded = false
+                        fetchedRoster = nil
                         triggerAutofill()
                     }
 
@@ -160,6 +163,7 @@ struct CandidateSetupView: View {
                     }
                     .onChange(of: selectedStateEntry) { _, _ in
                         rosterLoaded = false
+                        fetchedRoster = nil
                         triggerAutofill()
                     }
 
@@ -199,8 +203,19 @@ struct CandidateSetupView: View {
                         }
                     }
 
+                    if let roster = fetchedRoster {
+                        Picker("Select Real Candidate", selection: $selectedParty) {
+                            Text(roster.candidateDem).tag(PartyAffiliation.democratic)
+                            Text(roster.candidateRep).tag(PartyAffiliation.republican)
+                        }
+                        .pickerStyle(.menu)
+                        .onChange(of: selectedParty) { _, newParty in
+                            applyRosterSelection(roster, playerIsDem: newParty == .democratic)
+                        }
+                    }
+
                     if rosterLoaded {
-                        Text("Autofilled from FiveThirtyEight")
+                        Text("Real 2026 candidate data loaded")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -215,6 +230,9 @@ struct CandidateSetupView: View {
                         .accessibilityLabel("Is the candidate an incumbent?")
                 } header: {
                     Text("Your Candidate")
+                } footer: {
+                    Text("Real 2026 candidates auto-fill when you select a race and state above.")
+                        .font(.caption)
                 }
 
                 // MARK: Opponent
@@ -320,20 +338,23 @@ struct CandidateSetupView: View {
         guard !rosterLoaded else { return }
         let raceId = computedRaceId()
         isLoadingRoster = true
+        fetchedRoster = nil
         Task {
             if let roster = await FirestoreService.shared.fetchCandidateRoster(raceId: raceId) {
-                let playerIsDem = selectedParty == .democratic
-                candidateName = playerIsDem ? roster.candidateDem : roster.candidateRep
-                opponentName  = playerIsDem ? roster.candidateRep : roster.candidateDem
-                selectedParty         = playerIsDem ? roster.demParty : roster.repParty
-                selectedOpponentParty = playerIsDem ? roster.repParty : roster.demParty
-                isIncumbent           = playerIsDem ? roster.demIncumbent : roster.repIncumbent
-                if !candidateName.isEmpty || !opponentName.isEmpty {
-                    rosterLoaded = true
-                }
+                fetchedRoster = roster
+                applyRosterSelection(roster, playerIsDem: selectedParty == .democratic)
+                rosterLoaded = true
             }
             isLoadingRoster = false
         }
+    }
+
+    private func applyRosterSelection(_ roster: CandidateRoster, playerIsDem: Bool) {
+        candidateName         = playerIsDem ? roster.candidateDem : roster.candidateRep
+        opponentName          = playerIsDem ? roster.candidateRep : roster.candidateDem
+        selectedParty         = playerIsDem ? roster.demParty     : roster.repParty
+        selectedOpponentParty = playerIsDem ? roster.repParty     : roster.demParty
+        isIncumbent           = playerIsDem ? roster.demIncumbent : roster.repIncumbent
     }
 
     private func computedRaceId() -> String {
