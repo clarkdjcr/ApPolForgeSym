@@ -255,11 +255,15 @@ struct CandidateSetupView: View {
                 // MARK: Opponent Contact
                 Section {
                     TextField("Website", text: $opponentWebsite)
+#if canImport(UIKit)
                         .keyboardType(.URL)
-                        .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
+#endif
+                        .autocorrectionDisabled()
                     TextField("Phone", text: $opponentPhone)
+#if canImport(UIKit)
                         .keyboardType(.phonePad)
+#endif
                     TextField("Address", text: $opponentAddress)
                 } header: {
                     Text("Opponent Contact")
