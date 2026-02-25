@@ -173,6 +173,34 @@ struct SetupView: View {
                             .multilineTextAlignment(.center)
                             .foregroundStyle(.secondary)
 
+                        Button { showingRosterBrowser = true } label: {
+                            HStack {
+                                Image(systemName: "list.bullet.rectangle.portrait")
+                                    .font(.title3)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Browse 2026 Race Database")
+                                        .font(.headline)
+                                    Text("View all available Senate & Governor candidates")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .foregroundStyle(.secondary)
+                            }
+                            .padding()
+                            #if os(macOS)
+                            .background(Color(nsColor: .quaternaryLabelColor))
+                            #else
+                            .background(Color(uiColor: .systemGray6))
+                            #endif
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.horizontal)
+                        .accessibilityLabel("Browse 2026 Race Database")
+                        .accessibilityHint("View seeded Senate and Governor candidates for 2026")
+
                         // Custom Candidate button — opens real-world candidate tracker
                         Button {
                             HapticsManager.shared.playSelectionFeedback()
@@ -206,34 +234,6 @@ struct SetupView: View {
                         .padding(.horizontal)
                         .accessibilityLabel("Track Real 2026 Candidate")
                         .accessibilityHint("Add a real-world candidate to monitor live polls and issues")
-
-                        Button { showingRosterBrowser = true } label: {
-                            HStack {
-                                Image(systemName: "list.bullet.rectangle.portrait")
-                                    .font(.title3)
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("Browse 2026 Race Database")
-                                        .font(.headline)
-                                    Text("View all available Senate & Governor candidates")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .foregroundStyle(.secondary)
-                            }
-                            .padding()
-                            #if os(macOS)
-                            .background(Color(nsColor: .quaternaryLabelColor))
-                            #else
-                            .background(Color(uiColor: .systemGray6))
-                            #endif
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                        }
-                        .buttonStyle(.plain)
-                        .padding(.horizontal)
-                        .accessibilityLabel("Browse 2026 Race Database")
-                        .accessibilityHint("View seeded Senate and Governor candidates for 2026")
 
                         Button {
                             HapticsManager.shared.playActionFeedback()
@@ -381,6 +381,7 @@ struct GamePlayView: View {
     @State private var showingHelp = false
     @State private var showingSaveConfirmation = false
     @State private var showingAIActionReport = false
+    @State private var showingExitConfirmation = false
     @State private var aiOpponent: AIOpponent?
     @StateObject private var shadowManager: ShadowBudgetManager
     @StateObject private var strategicAdvisor: StrategicAdvisor
@@ -549,6 +550,14 @@ struct GamePlayView: View {
                         } label: {
                             Label("Settings", systemImage: "gearshape")
                         }
+
+                        Divider()
+
+                        Button(role: .destructive) {
+                            showingExitConfirmation = true
+                        } label: {
+                            Label("Exit to Main Menu", systemImage: "xmark.circle")
+                        }
                     } label: {
                         Label("Menu", systemImage: "ellipsis.circle")
                     }
@@ -561,17 +570,25 @@ struct GamePlayView: View {
                         } label: {
                             Label("Help", systemImage: "questionmark.circle")
                         }
-                        
+
                         Button {
                             saveGame()
                         } label: {
                             Label("Save Game", systemImage: "square.and.arrow.down")
                         }
-                        
+
                         Button {
                             showingSettings = true
                         } label: {
                             Label("Settings", systemImage: "gearshape")
+                        }
+
+                        Divider()
+
+                        Button(role: .destructive) {
+                            showingExitConfirmation = true
+                        } label: {
+                            Label("Exit to Main Menu", systemImage: "xmark.circle")
                         }
                     } label: {
                         Label("Menu", systemImage: "ellipsis.circle")
@@ -648,6 +665,14 @@ struct GamePlayView: View {
                 Button("OK") { }
             } message: {
                 Text("Your game has been saved successfully.")
+            }
+            .alert("Exit to Main Menu?", isPresented: $showingExitConfirmation) {
+                Button("Exit", role: .destructive) {
+                    gameState.resetToSetup()
+                }
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text("Your progress will be lost unless you saved first.")
             }
         }
     }

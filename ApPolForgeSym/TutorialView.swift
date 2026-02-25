@@ -539,6 +539,14 @@ struct SettingsView: View {
                 Section("Help") {
                     Toggle("Show Tutorial on New Game", isOn: $settings.showTutorial)
                 }
+
+                Section {
+                    Toggle("Enable Live Poll Data", isOn: $settings.firestoreEnabled)
+                } header: {
+                    Text("Live Data")
+                } footer: {
+                    Text("Connects to Firestore to load real 2026 polling data, candidate rosters, and issue correlations.")
+                }
                 
                 Section("About") {
                     HStack {

@@ -333,6 +333,10 @@ class GameState: ObservableObject {
     @Published var maxActionsThisTurn: Int = 1
     @Published var actionsUsedThisTurn: [CampaignAction] = []
     @Published var electoralVoteHistory: [ElectoralVoteSnapshot] = []
+    /// Real-world candidates the user is tracking via the new intelligence tools.
+    @Published var userCandidates: [UserCandidate] = []
+    /// The currently active UserCandidate used in Live Polls, Issues, and Email tabs.
+    @Published var activeUserCandidateId: UUID? = nil
 
     enum GamePhase: String {
         case setup
@@ -389,6 +393,10 @@ class GameState: ObservableObject {
     func startGame() {
         gamePhase = .playing
         recordElectoralVoteSnapshot(forTurn: 0)
+    }
+
+    func resetToSetup() {
+        gamePhase = .setup
     }
     
     func calculateElectoralVotes() -> (incumbent: Int, challenger: Int) {
@@ -539,6 +547,47 @@ class GameState: ObservableObject {
         challenger.momentum = max(-100, min(100, challenger.momentum))
     }
     
+    // MARK: - News Polling Modifiers
+
+    /// Apply dampened polling modifiers based on news-issue correlations.
+    /// Modifier = sensitivityCoefficient × 0.15 × pollingSwingPerEvent
+    /// Dampened by 0.15 to avoid overwhelming core gameplay.
+    func applyNewsPollingModifiers(correlations: [PollIssueCorrelation], recentArticles: [NewsArticle]) {
+        guard !correlations.isEmpty, !recentArticles.isEmpty else { return }
+
+        var totalImpact = 0.0
+        let dampeningFactor = 0.15
+
+        for article in recentArticles.prefix(10) {
+            let relevantCorrelation = correlations.first { $0.issueCategory == article.classifiedIssue }
+            let coeff = article.classifiedIssue.sensitivityCoefficient
+            let swingPerEvent = relevantCorrelation?.pollingSwingPerEvent ?? (coeff * dampeningFactor)
+
+            // Reduce impact for unvalidated or conflicted articles
+            let validationMultiplier: Double = {
+                if article.conflictsWithOtherSources { return 0.25 }
+                if !article.isValidated { return 0.50 }
+                return 1.0
+            }()
+
+            totalImpact += swingPerEvent * coeff * dampeningFactor * validationMultiplier
+        }
+
+        // Apply to all battleground states proportionally to their swing potential
+        for index in states.indices where states[index].isBattleground {
+            let stateMultiplier = Double(states[index].swingPotentialScore) / 100.0
+            // Split impact: positive sentiment slightly helps incumbent, negative helps challenger
+            let avgSentiment = recentArticles.map(\.sentimentScore).reduce(0, +) / Double(recentArticles.count)
+            let incumbentDelta = totalImpact * stateMultiplier * (avgSentiment >= 0 ? 0.5 : -0.3)
+            states[index].incumbentSupport = max(5, min(95, states[index].incumbentSupport + incumbentDelta))
+            states[index].challengerSupport = max(5, min(95, states[index].challengerSupport - incumbentDelta * 0.5))
+        }
+
+        // Clamp national polling
+        incumbent.nationalPolling = max(20, min(80, incumbent.nationalPolling + totalImpact * 0.1))
+        challenger.nationalPolling = max(20, min(80, challenger.nationalPolling - totalImpact * 0.05))
+    }
+
     func executeAction(_ action: CampaignAction) {
         // Deduct cost
         if action.player == .incumbent {
