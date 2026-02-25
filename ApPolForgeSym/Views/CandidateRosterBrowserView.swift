@@ -58,7 +58,11 @@ struct CandidateRosterBrowserView: View {
                             ContentUnavailableView.search
                         }
                     }
+                    #if os(iOS)
                     .listStyle(.insetGrouped)
+                    #else
+                    .listStyle(.inset)
+                    #endif
                 }
             }
             .navigationTitle("2026 Race Database")
