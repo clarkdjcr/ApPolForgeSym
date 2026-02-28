@@ -12,9 +12,6 @@ import UIKit
 #endif
 
 struct ContentView: View {
-// MARK: - CodeAI Output
-// *** PLEASE SUBSCRIBE TO GAIN CodeAI ACCESS! ***
-/// To subscribe, open CodeAI MacOS app and tap SUBSCRIBE
     @StateObject private var gameState = GameState()
     @StateObject private var settings = AppSettings.shared
     @State private var showingTutorial = false
