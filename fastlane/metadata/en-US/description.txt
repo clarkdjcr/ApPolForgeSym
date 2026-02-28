@@ -1,0 +1,66 @@
+COMMAND YOUR PATH TO VICTORY
+
+Step into the ultimate political strategy experience with Campaign Manager 2026. Whether you're running for the U.S. Senate, a gubernatorial seat, or climbing the ranks from city council to the White House, every decision shapes your path to victory.
+
+BUILD YOUR CAMPAIGN FROM THE GROUND UP
+
+Create your candidate profile, choose your race — Senate, Governor, House, or Presidential — and begin crafting the perfect campaign strategy. Your political journey starts with a single decision.
+
+MASTER REAL ELECTORAL DYNAMICS
+
+Navigate the actual 2026 Senate and gubernatorial landscape with live polling data pulled directly from national surveys. Watch your numbers move as you make strategic decisions, manage your message, and respond to breaking events. Polling averages update automatically from real sources — no manual refreshing required.
+
+LIVE POLL INTELLIGENCE
+
+The Polls command center delivers real-time polling averages for every competitive Senate and Governor race across all 50 states. See where you stand, track momentum, and identify which constituencies need your attention most. Data is refreshed weekly from the same sources professional campaigns rely on.
+
+STRATEGIC DEPTH ACROSS EIGHT COMMAND CENTERS
+
+Map — Visualize the full electoral landscape, state by state and district by district
+Actions — Deploy resources, schedule events, run ads, mobilize volunteers, and apply pressure where it counts
+Strategy — Set campaign priorities, craft your message framework, and control the narrative
+Shadow — Track opponent moves, monitor opposition spending, and prepare counterstrategies
+Events — Respond to breaking news, endorsements, gaffes, and campaign trail moments
+Polls — Monitor live national and state-level polling with competitiveness tiers
+Issues — Navigate issue correlations, track voter priorities, and align your platform
+Email — Manage campaign communications, donor outreach, and get-out-the-vote efforts
+
+COMPETE IN THE RACES THAT MATTER
+
+Choose your battle from the full slate of 2026 Senate Class II contests and open gubernatorial races. Incumbents defending seats. Challengers rising. Every state tells a different story, and the national map shifts week by week.
+
+REAL-TIME DATA INTEGRATION
+
+Campaign Manager 2026 connects to live political news aggregates and polling data, delivering the same intelligence real campaigns use — updated automatically so the 2026 electoral map stays current through Election Day.
+
+DYNAMIC EVENTS SYSTEM
+
+Random events keep every playthrough unique:
+- Political scandals that reshape the race overnight
+- Economic news affecting voter sentiment
+- Major endorsements from influential figures
+- Campaign gaffes that damage momentum
+- National crises testing your leadership
+- Viral moments that swing polling in hours
+
+SHADOW BUDGET SYSTEM
+
+Navigate the ethical gray zones of modern campaigns with the discretionary fund system. Allocate resources between above-board operations and riskier tactical maneuvers. Detection carries consequences. Clean campaigns earn integrity bonuses. Walk the line carefully — one wrong move triggers a campaign-ending scandal.
+
+AI-POWERED STRATEGIC ADVISOR
+
+Built-in campaign analytics provide electoral vote projections, paths to 270, defensive recommendations for vulnerable districts, offensive strategies to flip competitive battlegrounds, and fundraising forecasts. Optional integration with external AI for enhanced strategic recommendations.
+
+EDUCATIONAL VALUE
+
+Campaign Manager 2026 teaches the real mechanics behind U.S. elections: the Electoral College, campaign finance dynamics, swing state strategy, the impact of political events, resource allocation under constraints, and risk vs. reward decision-making. Perfect for political science students, policy wonks, and anyone fascinated by how elections actually work.
+
+PRIVACY AND SECURITY
+
+No personal data collected. No advertising or tracking. Optional AI features use user-supplied API keys stored in your device's Keychain. Firebase Firestore is used read-only to display live polling data — no account or login required.
+
+REQUIREMENTS
+
+iOS 17.0 or later • iPad compatible • Works offline (live poll features require internet)
+
+Download now and prove you have what it takes to win.

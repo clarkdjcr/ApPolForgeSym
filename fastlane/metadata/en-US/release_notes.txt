@@ -1,0 +1,6 @@
+Version 2.1
+
+• Live polling data now refreshes automatically every week — Senate and Governor races across all 50 states
+• Weekly candidate roster updates pull from live sources for the most current 2026 field
+• Political news feed updates daily with issue correlation tracking
+• Performance improvements and stability fixes

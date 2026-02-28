@@ -90,6 +90,7 @@ final class BiweeklyRefreshManager: ObservableObject {
     /// Trigger an immediate manual refresh (e.g. pull-to-refresh in LivePollDashboardView).
     func performManualRefresh(raceIds: [String]) async {
         guard !isRefreshing else { return }
+        guard AppSettings.shared.firestoreEnabled else { return }
         isRefreshing = true
         defer {
             isRefreshing = false

@@ -53,7 +53,14 @@ class AppSettings: ObservableObject {
     // External AI Agent settings
     @AppStorage("externalAIEnabled") var externalAIEnabled: Bool = false
     @AppStorage("externalAIEndpoint") var externalAIEndpoint: String = "https://api.openai.com/v1/chat/completions"
-    
+
+    // Firestore & live data settings
+    @AppStorage("firestoreEnabled") var firestoreEnabled: Bool = false
+    @AppStorage("newsAPIEnabled") var newsAPIEnabled: Bool = false
+    @AppStorage("lastFirestoreSync") var lastFirestoreSync: Double = 0
+    @AppStorage("activeRaceId") var activeRaceId: String = ""
+    @AppStorage("biweeklyRefreshEnabled") var biweeklyRefreshEnabled: Bool = true
+
     var aiDifficulty: AIDifficulty {
         get {
             AIDifficulty(rawValue: aiDifficultyRawValue) ?? .medium

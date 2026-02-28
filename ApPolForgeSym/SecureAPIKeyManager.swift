@@ -9,15 +9,43 @@ import Foundation
 import Security
 import Combine
 
-/// Manages secure storage and cleanup of external AI API keys
+// MARK: - API Service Type
+
+/// Identifies which external service an API key belongs to.
+enum APIServiceType: String, CaseIterable {
+    case externalAI = "external-ai"
+    case newsAPI    = "newsapi"
+    case sendGrid   = "sendgrid"
+
+    var keychainAccount: String {
+        switch self {
+        case .externalAI: return "external-ai-api-key"
+        case .newsAPI:    return "newsapi-api-key"
+        case .sendGrid:   return "sendgrid-api-key"
+        }
+    }
+
+    var displayName: String {
+        switch self {
+        case .externalAI: return "External AI"
+        case .newsAPI:    return "NewsAPI.org"
+        case .sendGrid:   return "SendGrid"
+        }
+    }
+}
+
+// MARK: - Secure API Key Manager
+
+/// Manages secure storage and cleanup of external API keys.
 @MainActor
 class SecureAPIKeyManager: ObservableObject {
     static let shared = SecureAPIKeyManager()
-    
+
     @Published var isAPIKeyConfigured: Bool = false
     @Published var lastError: String?
-    
+
     private let serviceName = "com.appolforgesym.aiagent"
+    /// Legacy account name — preserved for backward compatibility with existing saves.
     private let accountName = "external-ai-api-key"
     
     private init() {
@@ -33,8 +61,79 @@ class SecureAPIKeyManager: ObservableObject {
         )
     }
     
-    // MARK: - Public API
-    
+    // MARK: - Multi-Service API (new — backward compatible)
+
+    /// Securely stores an API key for a specific service type.
+    func saveAPIKey(_ key: String, for service: APIServiceType) throws {
+        guard !key.isEmpty else { throw APIKeyError.emptyKey }
+        try? deleteAPIKey(for: service)
+
+        guard let data = key.data(using: .utf8) else { throw APIKeyError.encodingFailed }
+
+        let query: [String: Any] = [
+            kSecClass as String:       kSecClassGenericPassword,
+            kSecAttrService as String: serviceName,
+            kSecAttrAccount as String: service.keychainAccount,
+            kSecValueData as String:   data,
+            kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+        ]
+
+        let status = SecItemAdd(query as CFDictionary, nil)
+        guard status == errSecSuccess else { throw APIKeyError.keychainError(status) }
+
+        if service == .externalAI { isAPIKeyConfigured = true }
+        lastError = nil
+    }
+
+    /// Retrieves an API key for a specific service type.
+    func retrieveAPIKey(for service: APIServiceType) throws -> String {
+        let query: [String: Any] = [
+            kSecClass as String:       kSecClassGenericPassword,
+            kSecAttrService as String: serviceName,
+            kSecAttrAccount as String: service.keychainAccount,
+            kSecReturnData as String:  true,
+            kSecMatchLimit as String:  kSecMatchLimitOne
+        ]
+
+        var item: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &item)
+
+        guard status == errSecSuccess else {
+            if status == errSecItemNotFound { throw APIKeyError.keyNotFound }
+            throw APIKeyError.keychainError(status)
+        }
+
+        guard let data = item as? Data,
+              let key = String(data: data, encoding: .utf8) else {
+            throw APIKeyError.decodingFailed
+        }
+        return key
+    }
+
+    /// Deletes the API key for a specific service type.
+    func deleteAPIKey(for service: APIServiceType) throws {
+        let query: [String: Any] = [
+            kSecClass as String:       kSecClassGenericPassword,
+            kSecAttrService as String: serviceName,
+            kSecAttrAccount as String: service.keychainAccount
+        ]
+
+        let status = SecItemDelete(query as CFDictionary)
+        guard status == errSecSuccess || status == errSecItemNotFound else {
+            throw APIKeyError.keychainError(status)
+        }
+
+        if service == .externalAI { isAPIKeyConfigured = false }
+        lastError = nil
+    }
+
+    /// Returns true if a key exists for the given service type.
+    func hasAPIKey(for service: APIServiceType) -> Bool {
+        (try? retrieveAPIKey(for: service)) != nil
+    }
+
+    // MARK: - Legacy API (backward compatible)
+
     /// Securely stores the API key in the Keychain
     func saveAPIKey(_ key: String) throws {
         guard !key.isEmpty else {

@@ -19,10 +19,14 @@ struct GameSaveData: Codable {
     let recentEvents: [GameEvent]
     let electoralVoteHistory: [ElectoralVoteSnapshot]
     let savedDate: Date
+    // New fields — decodeIfPresent ensures all existing save files load without error
+    let userCandidates: [UserCandidate]
+    let activeUserCandidateId: UUID?
 
     enum CodingKeys: String, CodingKey {
         case incumbent, challenger, states, currentTurn, maxTurns
         case currentPlayer, recentEvents, electoralVoteHistory, savedDate
+        case userCandidates, activeUserCandidateId
     }
 
     init(from gameState: GameState) {
@@ -35,6 +39,8 @@ struct GameSaveData: Codable {
         self.recentEvents = gameState.recentEvents
         self.electoralVoteHistory = gameState.electoralVoteHistory
         self.savedDate = Date()
+        self.userCandidates = gameState.userCandidates
+        self.activeUserCandidateId = gameState.activeUserCandidateId
     }
 
     init(from decoder: Decoder) throws {
@@ -48,6 +54,9 @@ struct GameSaveData: Codable {
         recentEvents = try container.decode([GameEvent].self, forKey: .recentEvents)
         electoralVoteHistory = try container.decodeIfPresent([ElectoralVoteSnapshot].self, forKey: .electoralVoteHistory) ?? []
         savedDate = try container.decode(Date.self, forKey: .savedDate)
+        // decodeIfPresent: existing saves without these keys load cleanly with empty defaults
+        userCandidates = try container.decodeIfPresent([UserCandidate].self, forKey: .userCandidates) ?? []
+        activeUserCandidateId = try container.decodeIfPresent(UUID.self, forKey: .activeUserCandidateId)
     }
 
     @MainActor
@@ -60,6 +69,8 @@ struct GameSaveData: Codable {
         gameState.currentPlayer = currentPlayer
         gameState.recentEvents = recentEvents
         gameState.electoralVoteHistory = electoralVoteHistory
+        gameState.userCandidates = userCandidates
+        gameState.activeUserCandidateId = activeUserCandidateId
         gameState.gamePhase = .playing
     }
 }

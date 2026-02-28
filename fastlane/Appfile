@@ -1,0 +1,7 @@
+app_identifier "clarkdjcr.ApPolForgeSym"
+team_id "965RA266P3"
+
+# App Store Connect API Key (App Manager role required for metadata)
+# Generate at: https://appstoreconnect.apple.com/access/integrations/api
+# Role needed: App Manager (or Admin)
+# Note: The Developer-role key (6UNR62377K) works for binary upload but NOT metadata.

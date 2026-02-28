@@ -42,20 +42,49 @@ enum PartyAffiliation: String, Codable, CaseIterable, Identifiable {
     }
 }
 
+// MARK: - Campaign Level
+
+enum CampaignLevel: String, Codable, CaseIterable, Identifiable {
+    case federal = "Federal"
+    case state   = "State"
+
+    var id: String { rawValue }
+
+    var icon: String {
+        switch self {
+        case .federal: return "building.columns.fill"
+        case .state:   return "mappin.and.ellipse"
+        }
+    }
+}
+
 // MARK: - Race Type
 
 enum RaceType: String, Codable, CaseIterable, Identifiable {
     case presidential = "Presidential"
-    case senate = "Senate"
-    case house = "House"
+    case senate       = "Senate"
+    case house        = "House"
+    case governor     = "Governor"
+    case stateSenate  = "State Senate"
+    case stateHouse   = "State House"
 
     var id: String { rawValue }
 
     var icon: String {
         switch self {
         case .presidential: return "building.columns.fill"
-        case .senate: return "building.2.fill"
-        case .house: return "house.fill"
+        case .senate:       return "building.2.fill"
+        case .house:        return "house.fill"
+        case .governor:     return "mappin.and.ellipse"
+        case .stateSenate:  return "building.2.crop.circle"
+        case .stateHouse:   return "house.and.flag.fill"
+        }
+    }
+
+    var campaignLevel: CampaignLevel {
+        switch self {
+        case .presidential, .senate, .house: return .federal
+        case .governor, .stateSenate, .stateHouse: return .state
         }
     }
 }
@@ -216,15 +245,26 @@ struct UserCandidate: Identifiable, Codable {
     let id: UUID
     var name: String
     var party: PartyAffiliation
+    var campaignLevel: CampaignLevel
     var raceType: RaceType
     var state: String
     var stateAbbreviation: String
-    /// Used only for House races; 0 = at-large
+    /// Used for House, State Senate, and State House races; 0 = at-large
     var districtNumber: Int
     var isIncumbent: Bool
     var opponentName: String
     var opponentParty: PartyAffiliation
     var createdAt: Date
+
+    // Candidate contact info (optional, stored locally)
+    var campaignWebsite: String
+    var campaignPhone: String
+    var campaignAddress: String
+
+    // Opponent contact info (optional, stored locally)
+    var opponentWebsite: String
+    var opponentPhone: String
+    var opponentAddress: String
 
     var displayRaceTitle: String {
         switch raceType {
@@ -237,6 +277,12 @@ struct UserCandidate: Identifiable, Codable {
                 return "\(stateAbbreviation) At-Large"
             }
             return "\(stateAbbreviation) District \(districtNumber)"
+        case .governor:
+            return "\(state) Governor"
+        case .stateSenate:
+            return "\(stateAbbreviation) State Senate Dist. \(districtNumber)"
+        case .stateHouse:
+            return "\(stateAbbreviation) State House Dist. \(districtNumber)"
         }
     }
 
@@ -249,6 +295,12 @@ struct UserCandidate: Identifiable, Codable {
             return "\(stateAbbreviation)-senate"
         case .house:
             return "\(stateAbbreviation)-\(districtNumber)-house"
+        case .governor:
+            return "\(stateAbbreviation)-governor"
+        case .stateSenate:
+            return "\(stateAbbreviation)-\(districtNumber)-state-senate"
+        case .stateHouse:
+            return "\(stateAbbreviation)-\(districtNumber)-state-house"
         }
     }
 
@@ -256,6 +308,7 @@ struct UserCandidate: Identifiable, Codable {
         id: UUID = UUID(),
         name: String,
         party: PartyAffiliation,
+        campaignLevel: CampaignLevel = .federal,
         raceType: RaceType,
         state: String,
         stateAbbreviation: String,
@@ -263,11 +316,18 @@ struct UserCandidate: Identifiable, Codable {
         isIncumbent: Bool = false,
         opponentName: String,
         opponentParty: PartyAffiliation,
-        createdAt: Date = Date()
+        createdAt: Date = Date(),
+        campaignWebsite: String = "",
+        campaignPhone: String = "",
+        campaignAddress: String = "",
+        opponentWebsite: String = "",
+        opponentPhone: String = "",
+        opponentAddress: String = ""
     ) {
         self.id = id
         self.name = name
         self.party = party
+        self.campaignLevel = campaignLevel
         self.raceType = raceType
         self.state = state
         self.stateAbbreviation = stateAbbreviation
@@ -276,5 +336,11 @@ struct UserCandidate: Identifiable, Codable {
         self.opponentName = opponentName
         self.opponentParty = opponentParty
         self.createdAt = createdAt
+        self.campaignWebsite = campaignWebsite
+        self.campaignPhone = campaignPhone
+        self.campaignAddress = campaignAddress
+        self.opponentWebsite = opponentWebsite
+        self.opponentPhone = opponentPhone
+        self.opponentAddress = opponentAddress
     }
 }

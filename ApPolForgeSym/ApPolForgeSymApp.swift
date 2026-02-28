@@ -17,6 +17,9 @@ struct ApPolForgeSymApp: App {
         // Register bi-weekly background refresh task.
         // Must be called before the first scene is presented.
         BiweeklyRefreshManager.registerBackgroundTask()
+
+        // Schedule the first biweekly fetch so the background-task chain starts.
+        BiweeklyRefreshManager.shared.scheduleNextRefresh()
     }
 
     var body: some Scene {

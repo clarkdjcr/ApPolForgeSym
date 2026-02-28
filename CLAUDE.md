@@ -8,7 +8,7 @@ Project context and instructions for Claude Code sessions.
 
 **App name:** Campaign Manager 2026
 **Bundle ID:** `clarkdjcr.ApPolForgeSym`
-**Version:** 2.0 (build 3)
+**Version:** 2.0 (build 8)
 **Platform:** iOS 26.2+, iPadOS 26.2+, macOS 26.2+, visionOS 26.2+
 **Language:** Swift 5.0 / SwiftUI
 **Firebase project:** `peach-bfdf0` (us-central1)

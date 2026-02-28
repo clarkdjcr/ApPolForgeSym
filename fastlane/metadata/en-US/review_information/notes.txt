@@ -1,0 +1,20 @@
+Campaign Manager 2026 is a single-player political strategy simulation game. No account or login is required at any point.
+
+To test the app:
+1. Launch the app
+2. Tap "Create Candidate" on the setup screen
+3. Select a race type (Senate, Governor, Presidential, etc.) and a state
+4. Fill in a candidate name and save
+5. Explore the 8 campaign management tabs: Map, Actions, Strategy, Shadow, Events, Polls, Issues, Email
+
+To test the live polling feature:
+- Open Settings (gear icon) → enable "Enable Firestore Data"
+- Navigate to the Polls tab to see real-time polling averages for 2026 races
+
+Firebase Firestore is used read-only to display public polling data. No user authentication is performed and no personal data is collected or transmitted.
+
+The Shadow tab includes a simulated "discretionary fund" mechanic representing ethically questionable campaign tactics. This is entirely fictional/simulated and does not represent actual illegal activity.
+
+Optional AI integration (OpenAI, Anthropic) requires a user-supplied API key stored locally in iOS Keychain. This feature is fully optional and off by default.
+
+No in-app purchases. No advertising. No user accounts.
