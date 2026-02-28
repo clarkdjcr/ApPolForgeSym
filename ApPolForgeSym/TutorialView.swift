@@ -552,14 +552,14 @@ struct SettingsView: View {
                     HStack {
                         Text("Version")
                         Spacer()
-                        Text("1.0")
+                        Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—")
                             .foregroundStyle(.secondary)
                     }
-                    
+
                     HStack {
                         Text("Build")
                         Spacer()
-                        Text("2026.01")
+                        Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—")
                             .foregroundStyle(.secondary)
                     }
                 }
