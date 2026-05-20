@@ -1,3 +1,4 @@
+#if os(iOS)
 import ActivityKit
 import WidgetKit
 import SwiftUI
@@ -87,3 +88,4 @@ struct ElectionLiveActivity: Widget {
         }
     }
 }
+#endif

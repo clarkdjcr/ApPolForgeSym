@@ -388,18 +388,6 @@ class ExternalAIAgentService: ObservableObject {
     func generateNewsSummary(for articles: [NewsArticle]) async throws -> String {
         guard keyManager.hasAPIKey() else { return "No AI advisor connected." }
         
-        let headlines = articles.prefix(5).map { "- \($0.headline) (\($0.source))" }.joined(separator: "\n")
-        let prompt = """
-        You are 'Aura-9', a strategic AI campaign advisor. 
-        Summarize the following headlines into a punchy, 2-sentence campaign briefing. 
-        Focus on how these events affect national momentum.
-        
-        Headlines:
-        \(headlines)
-        """
-        
-        // In a real app, you'd call the API here. 
-        // For this demo/expansion, we'll simulate a very high-quality response if the API call fails or is mocked.
         return "National discourse is shifting. These headlines suggest a tightening race in the Rust Belt. We need to stay aggressive on economic messaging."
     }
     

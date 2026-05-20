@@ -56,7 +56,7 @@ Campain_Manager.xcworkspace     ← Open this, NOT the .xcodeproj
 xcodebuild \
   -workspace Campain_Manager.xcworkspace \
   -scheme ApPolForgeSym \
-  -destination "platform=iOS Simulator,id=B88B5030-2A3B-4A37-97DA-8368FC10BBA1" \
+  -destination "platform=iOS Simulator,id=EB7A8C5B-D545-436D-B504-11800AFF1BFD" \
   -configuration Debug \
   build 2>&1 | grep -E "error:|BUILD SUCCEEDED|BUILD FAILED"
 ```
@@ -66,7 +66,7 @@ xcodebuild \
 xcodebuild \
   -workspace Campain_Manager.xcworkspace \
   -scheme ApPolForgeSym \
-  -destination "platform=iOS Simulator,id=B88B5030-2A3B-4A37-97DA-8368FC10BBA1" \
+  -destination "platform=iOS Simulator,id=EB7A8C5B-D545-436D-B504-11800AFF1BFD" \
   -configuration Debug \
   test 2>&1 | grep -E "Test Case|error:|passed|failed|BUILD"
 ```
