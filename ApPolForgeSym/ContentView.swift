@@ -11,6 +11,12 @@ import Charts
 import UIKit
 #endif
 
+private let contentViewTabs: [(Int, String)] = [
+    (0, "War Room"), (1, "Map"), (2, "Actions"),
+    (3, "Strategy"), (4, "Shadow"), (5, "Events"),
+    (6, "Polls"), (7, "Issues"), (8, "Email")
+]
+
 struct ContentView: View {
     @StateObject private var gameState = GameState()
     @StateObject private var settings = AppSettings.shared
@@ -433,91 +439,35 @@ struct GamePlayView: View {
 
                 // Action counter for multi-action turns
                 if isPlayerTurn && gameState.maxActionsThisTurn > 1 {
-                    HStack(spacing: 12) {
-                        Label("Actions: \(gameState.actionsRemainingThisTurn)/\(gameState.maxActionsThisTurn)",
-                              systemImage: "bolt.fill")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-
-                        Spacer()
-
-                        Button("End Turn Early") {
-                            HapticsManager.shared.playTurnEndFeedback()
-                            gameState.forceEndTurn()
-                        }
-                        .font(.subheadline)
-                        .foregroundStyle(.red)
-                        .disabled(gameState.actionsRemainingThisTurn == gameState.maxActionsThisTurn)
-                    }
-                    .padding(.horizontal)
-                    .padding(.vertical, 8)
-                    .background(Color.blue.opacity(0.1))
-                    .accessibilityElement(children: .combine)
-                    .accessibilityLabel("Actions remaining: \(gameState.actionsRemainingThisTurn) of \(gameState.maxActionsThisTurn)")
+                    ActionCounterBanner(gameState: gameState)
                 }
 
                 // Tab selector — scrollable row to fit all 8 tabs
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 0) {
-                        ForEach([
-                            (0, "Map"),
-                            (1, "Actions"),
-                            (2, "Strategy"),
-                            (3, "Shadow"),
-                            (4, "Events"),
-                            (5, "Polls"),
-                            (6, "Issues"),
-                            (7, "Email")
-                        ], id: \.0) { (tag, label) in
-                            Button {
-                                HapticsManager.shared.playSelectionFeedback()
-                                selectedTab = tag
-                            } label: {
-                                Text(label)
-                                    .font(.subheadline)
-                                    .fontWeight(selectedTab == tag ? .semibold : .regular)
-                                    .padding(.horizontal, 14)
-                                    .padding(.vertical, 8)
-                                    .background(selectedTab == tag ? Color.accentColor : Color.clear)
-                                    .foregroundStyle(selectedTab == tag ? .white : .primary)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                    .padding(.horizontal, 8)
-                }
-                .padding(.vertical, 4)
-                #if os(macOS)
-                .background(Color(nsColor: .controlBackgroundColor))
-                #else
-                .background(Color(uiColor: .systemGray6))
-                #endif
-                .onChange(of: selectedTab) { _, _ in
-                    HapticsManager.shared.playSelectionFeedback()
-                }
+                TabSelectorRow(selectedTab: $selectedTab)
 
                 // Content - Only render selected tab to avoid performance issues
                 Group {
                     switch selectedTab {
                     case 0:
-                        MapView(gameState: gameState)
+                        WarRoomView().environmentObject(gameState)
                     case 1:
-                        ActionsView(gameState: gameState, showingActionSheet: $showingActionSheet)
+                        MapView(gameState: gameState)
                     case 2:
-                        StrategicDashboardView(gameState: gameState)
+                        ActionsView(gameState: gameState, showingActionSheet: $showingActionSheet)
                     case 3:
-                        ShadowBudgetView(gameState: gameState, shadowManager: shadowManager)
+                        StrategicDashboardView(gameState: gameState)
                     case 4:
-                        EventsView(gameState: gameState)
+                        ShadowBudgetView(gameState: gameState, shadowManager: shadowManager)
                     case 5:
-                        LivePollDashboardView(gameState: gameState)
+                        EventsView(gameState: gameState)
                     case 6:
-                        IssueTrackerView(gameState: gameState)
+                        LivePollDashboardView(gameState: gameState)
                     case 7:
+                        IssueTrackerView(gameState: gameState)
+                    case 8:
                         EmailComposerView(gameState: gameState)
                     default:
-                        MapView(gameState: gameState)
+                        WarRoomView().environmentObject(gameState)
                     }
                 }
                 .animation(.default, value: selectedTab)
@@ -1859,6 +1809,80 @@ struct StatRow: View {
             Text(value)
                 .fontWeight(.semibold)
         }
+    }
+}
+
+private struct TabSelectorRow: View {
+    @Binding var selectedTab: Int
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 0) {
+                ForEach(contentViewTabs, id: \.0) { item in
+                    TabSelectorButton(label: item.1, isSelected: selectedTab == item.0) {
+                        HapticsManager.shared.playSelectionFeedback()
+                        selectedTab = item.0
+                    }
+                }
+            }
+            .padding(.horizontal, 8)
+        }
+        .padding(.vertical, 4)
+        #if os(macOS)
+        .background(Color(nsColor: .controlBackgroundColor))
+        #else
+        .background(Color(uiColor: .systemGray6))
+        #endif
+        .onChange(of: selectedTab) { _, _ in
+            HapticsManager.shared.playSelectionFeedback()
+        }
+    }
+}
+
+private struct ActionCounterBanner: View {
+    @ObservedObject var gameState: GameState
+
+    var body: some View {
+        let remaining = gameState.actionsRemainingThisTurn
+        let max = gameState.maxActionsThisTurn
+        HStack(spacing: 12) {
+            Label("Actions: \(remaining)/\(max)", systemImage: "bolt.fill")
+                .font(.subheadline)
+                .fontWeight(.semibold)
+            Spacer()
+            Button("End Turn Early") {
+                HapticsManager.shared.playTurnEndFeedback()
+                gameState.forceEndTurn()
+            }
+            .font(.subheadline)
+            .foregroundStyle(Color.red)
+            .disabled(remaining == max)
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .background(Color.blue.opacity(0.1))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Actions remaining: \(remaining) of \(max)")
+    }
+}
+
+private struct TabSelectorButton: View {
+    let label: String
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(label)
+                .font(.subheadline)
+                .fontWeight(isSelected ? .semibold : .regular)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .background(isSelected ? Color.accentColor : Color.clear)
+                .foregroundStyle(isSelected ? Color.white : Color.primary)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+        .buttonStyle(.plain)
     }
 }
 

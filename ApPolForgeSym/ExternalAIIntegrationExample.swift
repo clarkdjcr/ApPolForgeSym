@@ -67,7 +67,7 @@ extension StrategicAdvisor {
         var recommendations: [StrategicRecommendation] = []
         
         // Example: Convert AI text recommendations into structured recommendations
-        for (index, recommendation) in response.recommendations.enumerated() {
+        for (index, recommendation) in (response.recommendations ?? []).enumerated() {
             let rec = StrategicRecommendation(
                 type: .offensive, // Determine from AI response content
                 priority: index == 0 ? .critical : .high, // First is highest priority

@@ -171,11 +171,11 @@ struct CongressionalRaceRow: View {
             GeometryReader { geometry in
                 HStack(spacing: 0) {
                     Rectangle()
-                        .fill(Color(hex: PartyAffiliation.democratic.hexColor) ?? .blue)
+                        .fill(Color(hex: PartyAffiliation.democratic.hexColor))
                         .frame(width: geometry.size.width * (race.demPollingAverage / 100))
 
                     Rectangle()
-                        .fill(Color(hex: PartyAffiliation.republican.hexColor) ?? .red)
+                        .fill(Color(hex: PartyAffiliation.republican.hexColor))
                         .frame(width: geometry.size.width * (race.repPollingAverage / 100))
 
                     Rectangle()
@@ -189,7 +189,7 @@ struct CongressionalRaceRow: View {
             HStack {
                 HStack(spacing: 4) {
                     Circle()
-                        .fill(Color(hex: PartyAffiliation.democratic.hexColor) ?? .blue)
+                        .fill(Color(hex: PartyAffiliation.democratic.hexColor))
                         .frame(width: 8, height: 8)
                     Text("\(race.candidateDem) \(race.candidateDemIncumbent ? "★" : "")")
                         .font(.caption)
@@ -209,7 +209,7 @@ struct CongressionalRaceRow: View {
                         .font(.caption)
                         .lineLimit(1)
                     Circle()
-                        .fill(Color(hex: PartyAffiliation.republican.hexColor) ?? .red)
+                        .fill(Color(hex: PartyAffiliation.republican.hexColor))
                         .frame(width: 8, height: 8)
                 }
             }
@@ -241,19 +241,6 @@ struct CongressionalRaceRow: View {
     }
 }
 
-// MARK: - Color Hex Extension
-
-private extension Color {
-    init?(hex: String) {
-        let hex = hex.trimmingCharacters(in: .init(charactersIn: "#"))
-        guard hex.count == 6, let value = UInt64(hex, radix: 16) else { return nil }
-        self.init(
-            red:   Double((value >> 16) & 0xFF) / 255,
-            green: Double((value >> 8) & 0xFF) / 255,
-            blue:  Double(value & 0xFF) / 255
-        )
-    }
-}
 
 #Preview {
     CongressionalMapView()

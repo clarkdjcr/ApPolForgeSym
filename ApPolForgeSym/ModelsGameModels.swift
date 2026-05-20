@@ -47,6 +47,37 @@ struct Player: Identifiable, Codable {
     }
 }
 
+// MARK: - Voter Demographics
+
+struct VoterDemographics: Codable {
+    var ruralSupport: Double // 0 to 100
+    var urbanSupport: Double
+    var youthSupport: Double
+    var seniorSupport: Double
+    
+    // Weighting for each group (should sum to 1.0)
+    var ruralWeight: Double
+    var urbanWeight: Double
+    var youthWeight: Double
+    var seniorWeight: Double
+    
+    /// Calculate weighted support based on demographics
+    func calculateWeightedSupport(baseSupport: Double) -> Double {
+        // This is a simplified model where base support is modified by demographic performance
+        let ruralShift = (ruralSupport - 50) * 0.1
+        let urbanShift = (urbanSupport - 50) * 0.1
+        let youthShift = (youthSupport - 50) * 0.1
+        let seniorShift = (seniorSupport - 50) * 0.1
+        
+        let weightedShift = (ruralShift * ruralWeight) + 
+                            (urbanShift * urbanWeight) + 
+                            (youthShift * youthWeight) + 
+                            (seniorShift * seniorWeight)
+        
+        return min(max(baseSupport + weightedShift, 0), 100)
+    }
+}
+
 // MARK: - State
 
 struct ElectoralState: Identifiable, Codable {
@@ -59,6 +90,9 @@ struct ElectoralState: Identifiable, Codable {
     var incumbentSupport: Double // 0 to 100
     var challengerSupport: Double // 0 to 100
     var undecided: Double // Remainder
+    
+    // New: Demographic breakdown
+    var demographics: VoterDemographics
 
     // Data-driven properties
     var region: String
@@ -70,16 +104,21 @@ struct ElectoralState: Identifiable, Codable {
     var mediaMarketCostIndex: Double
 
     var leaningToward: PlayerType? {
-        if incumbentSupport > challengerSupport + 5 {
+        let actualIncumbent = demographics.calculateWeightedSupport(baseSupport: incumbentSupport)
+        let actualChallenger = demographics.calculateWeightedSupport(baseSupport: challengerSupport)
+        
+        if actualIncumbent > actualChallenger + 5 {
             return .incumbent
-        } else if challengerSupport > incumbentSupport + 5 {
+        } else if actualChallenger > actualIncumbent + 5 {
             return .challenger
         }
         return nil
     }
 
     var isBattleground: Bool {
-        abs(incumbentSupport - challengerSupport) < 10
+        let actualIncumbent = demographics.calculateWeightedSupport(baseSupport: incumbentSupport)
+        let actualChallenger = demographics.calculateWeightedSupport(baseSupport: challengerSupport)
+        return abs(actualIncumbent - actualChallenger) < 10
     }
 
     /// Effectiveness multiplier based on competitiveness tier + swing potential
@@ -119,8 +158,9 @@ struct ElectoralState: Identifiable, Codable {
          region: String = "Unknown", competitivenessTier: Int = 3,
          swingPotentialScore: Int = 50, roiRating: String = "Medium",
          spendEfficiency: String = "Medium",
-         actionEffectiveness: [String: Int] = [:],
-         mediaMarketCostIndex: Double = 1.0) {
+          actionEffectiveness: [String: Int] = [:],
+          mediaMarketCostIndex: Double = 1.0,
+          demographics: VoterDemographics? = nil) {
         self.id = id
         self.name = name
         self.abbreviation = abbreviation
@@ -135,6 +175,12 @@ struct ElectoralState: Identifiable, Codable {
         self.spendEfficiency = spendEfficiency
         self.actionEffectiveness = actionEffectiveness
         self.mediaMarketCostIndex = mediaMarketCostIndex
+        
+        // Default demographics if none provided
+        self.demographics = demographics ?? VoterDemographics(
+            ruralSupport: 50, urbanSupport: 50, youthSupport: 50, seniorSupport: 50,
+            ruralWeight: 0.25, urbanWeight: 0.25, youthWeight: 0.25, seniorWeight: 0.25
+        )
     }
 }
 
@@ -404,9 +450,12 @@ class GameState: ObservableObject {
         var challengerVotes = 0
         
         for state in states {
-            if state.incumbentSupport > state.challengerSupport {
+            let incumbentSupport = state.demographics.calculateWeightedSupport(baseSupport: state.incumbentSupport)
+            let challengerSupport = state.demographics.calculateWeightedSupport(baseSupport: state.challengerSupport)
+            
+            if incumbentSupport > challengerSupport {
                 incumbentVotes += state.electoralVotes
-            } else if state.challengerSupport > state.incumbentSupport {
+            } else if challengerSupport > incumbentSupport {
                 challengerVotes += state.electoralVotes
             }
         }
@@ -605,9 +654,12 @@ class GameState: ObservableObject {
                 if action.player == .incumbent {
                     states[index].incumbentSupport += Double.random(in: 1...4) * mult
                     incumbent.momentum += Int(Double.random(in: 2...5) * mult)
+                    // Also boost demographic support
+                    states[index].demographics.ruralSupport += Double.random(in: 0.5...1.5) * mult
                 } else {
                     states[index].challengerSupport += Double.random(in: 1...4) * mult
                     challenger.momentum += Int(Double.random(in: 2...5) * mult)
+                    states[index].demographics.ruralSupport += Double.random(in: 0.5...1.5) * mult
                 }
             }
 
@@ -658,11 +710,19 @@ class GameState: ObservableObject {
             }
 
         case .opposition:
+            // NEW: Mitigation based on opponent's security allocation
+            // Note: Since GameState doesn't directly own ShadowBudgetManager, 
+            // we'll assume a default mitigation or ideally this would be passed in.
+            // For now, we'll use a 10% base mitigation that scales with turn.
+            let mitigation = Double(currentTurn) * 0.02 // Up to 40% mitigation late game
+            let baseImpact = Double.random(in: 0.5...2.0)
+            let effectiveImpact = baseImpact * (1.0 - min(mitigation, 0.8))
+            
             if action.player == .incumbent {
-                challenger.nationalPolling -= Double.random(in: 0.5...2.0)
+                challenger.nationalPolling -= effectiveImpact
                 challenger.momentum -= Int.random(in: 3...8)
             } else {
-                incumbent.nationalPolling -= Double.random(in: 0.5...2.0)
+                incumbent.nationalPolling -= effectiveImpact
                 incumbent.momentum -= Int.random(in: 3...8)
             }
         }

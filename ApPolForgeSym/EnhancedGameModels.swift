@@ -101,7 +101,8 @@ struct StrategicRecommendation: Identifiable, Codable {
     let suggestedActions: [CampaignActionType]
     let estimatedCost: Double
     let expectedImpact: String
-    let reasoning: String
+    var reasoning: String
+    var messagingSuggestions: [String]?
     
     init(
         id: UUID = UUID(),

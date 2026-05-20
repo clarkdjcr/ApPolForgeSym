@@ -180,7 +180,17 @@
           "volunteers": 2500,
           "budgetK": 95.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 50.18739664808384,
+        "urbanSupport": 49.72809427283298,
+        "youthSupport": 48.090924761268205,
+        "seniorSupport": 48.42096494689323,
+        "ruralWeight": 0.326,
+        "urbanWeight": 0.11,
+        "youthWeight": 0.275,
+        "seniorWeight": 0.288
+      }
     },
     {
       "name": "Alaska",
@@ -357,7 +367,17 @@
           "volunteers": 1500,
           "budgetK": 65.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 45.62483759998975,
+        "urbanSupport": 48.50921432380252,
+        "youthSupport": 53.007315576938595,
+        "seniorSupport": 50.06538021254663,
+        "ruralWeight": 0.143,
+        "urbanWeight": 0.318,
+        "youthWeight": 0.247,
+        "seniorWeight": 0.292
+      }
     },
     {
       "name": "Arizona",
@@ -534,7 +554,17 @@
           "volunteers": 45000,
           "budgetK": 10500.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 51.131460109792215,
+        "urbanSupport": 52.8274190202232,
+        "youthSupport": 47.48332038754536,
+        "seniorSupport": 46.39732678068667,
+        "ruralWeight": 0.243,
+        "urbanWeight": 0.266,
+        "youthWeight": 0.221,
+        "seniorWeight": 0.269
+      }
     },
     {
       "name": "Arkansas",
@@ -711,7 +741,17 @@
           "volunteers": 1800,
           "budgetK": 88.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 51.8928014409789,
+        "urbanSupport": 54.80969148007131,
+        "youthSupport": 50.99262227223587,
+        "seniorSupport": 53.05170709956141,
+        "ruralWeight": 0.396,
+        "urbanWeight": 0.112,
+        "youthWeight": 0.206,
+        "seniorWeight": 0.287
+      }
     },
     {
       "name": "California",
@@ -888,7 +928,17 @@
           "volunteers": 35000,
           "budgetK": 560.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 48.930826025462956,
+        "urbanSupport": 47.50898189661736,
+        "youthSupport": 49.66646115660815,
+        "seniorSupport": 45.871305693401965,
+        "ruralWeight": 0.181,
+        "urbanWeight": 0.313,
+        "youthWeight": 0.264,
+        "seniorWeight": 0.242
+      }
     },
     {
       "name": "Colorado",
@@ -1065,7 +1115,17 @@
           "volunteers": 18000,
           "budgetK": 1150.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 53.9364328704522,
+        "urbanSupport": 48.37905775266578,
+        "youthSupport": 53.106665549862825,
+        "seniorSupport": 49.76462094531,
+        "ruralWeight": 0.15,
+        "urbanWeight": 0.345,
+        "youthWeight": 0.208,
+        "seniorWeight": 0.298
+      }
     },
     {
       "name": "Connecticut",
@@ -1242,7 +1302,17 @@
           "volunteers": 5000,
           "budgetK": 130.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 49.11257571499008,
+        "urbanSupport": 54.225743136808305,
+        "youthSupport": 52.557522364480825,
+        "seniorSupport": 53.09913257613158,
+        "ruralWeight": 0.14,
+        "urbanWeight": 0.304,
+        "youthWeight": 0.251,
+        "seniorWeight": 0.304
+      }
     },
     {
       "name": "Delaware",
@@ -1419,7 +1489,17 @@
           "volunteers": 2500,
           "budgetK": 105.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 52.453502307614926,
+        "urbanSupport": 48.69929451108817,
+        "youthSupport": 53.089284181037605,
+        "seniorSupport": 54.81652621649158,
+        "ruralWeight": 0.123,
+        "urbanWeight": 0.323,
+        "youthWeight": 0.277,
+        "seniorWeight": 0.277
+      }
     },
     {
       "name": "District of Columbia",
@@ -1596,7 +1676,17 @@
           "volunteers": 2000,
           "budgetK": 45
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 45.85101590923279,
+        "urbanSupport": 52.947361070273914,
+        "youthSupport": 47.732047471681334,
+        "seniorSupport": 51.19877383229301,
+        "ruralWeight": 0.147,
+        "urbanWeight": 0.325,
+        "youthWeight": 0.251,
+        "seniorWeight": 0.277
+      }
     },
     {
       "name": "Florida",
@@ -1773,7 +1863,17 @@
           "volunteers": 55000,
           "budgetK": 10800.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 54.59613566001396,
+        "urbanSupport": 53.657843318567444,
+        "youthSupport": 54.80927434185107,
+        "seniorSupport": 47.471123657898026,
+        "ruralWeight": 0.328,
+        "urbanWeight": 0.133,
+        "youthWeight": 0.271,
+        "seniorWeight": 0.268
+      }
     },
     {
       "name": "Georgia",
@@ -1950,7 +2050,17 @@
           "volunteers": 50000,
           "budgetK": 10800.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 47.059637665477865,
+        "urbanSupport": 47.43855053194898,
+        "youthSupport": 48.72834532617769,
+        "seniorSupport": 48.71939518135792,
+        "ruralWeight": 0.315,
+        "urbanWeight": 0.154,
+        "youthWeight": 0.265,
+        "seniorWeight": 0.266
+      }
     },
     {
       "name": "Hawaii",
@@ -2127,7 +2237,17 @@
           "volunteers": 2000,
           "budgetK": 105.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 47.31742652926361,
+        "urbanSupport": 54.41388267135267,
+        "youthSupport": 47.33325988656117,
+        "seniorSupport": 52.19404749040672,
+        "ruralWeight": 0.181,
+        "urbanWeight": 0.348,
+        "youthWeight": 0.291,
+        "seniorWeight": 0.18
+      }
     },
     {
       "name": "Idaho",
@@ -2304,7 +2424,17 @@
           "volunteers": 1500,
           "budgetK": 65.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 48.32336122332332,
+        "urbanSupport": 53.114402782623415,
+        "youthSupport": 53.699907911216734,
+        "seniorSupport": 50.40332551335066,
+        "ruralWeight": 0.103,
+        "urbanWeight": 0.342,
+        "youthWeight": 0.254,
+        "seniorWeight": 0.301
+      }
     },
     {
       "name": "Illinois",
@@ -2481,7 +2611,17 @@
           "volunteers": 15000,
           "budgetK": 520.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 54.38518151128703,
+        "urbanSupport": 51.864621300186386,
+        "youthSupport": 45.89970488908126,
+        "seniorSupport": 54.30514099898623,
+        "ruralWeight": 0.322,
+        "urbanWeight": 0.139,
+        "youthWeight": 0.248,
+        "seniorWeight": 0.292
+      }
     },
     {
       "name": "Indiana",
@@ -2658,7 +2798,17 @@
           "volunteers": 6000,
           "budgetK": 260.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 45.471717834296996,
+        "urbanSupport": 45.70579850761327,
+        "youthSupport": 45.93904269011782,
+        "seniorSupport": 50.535857393713634,
+        "ruralWeight": 0.305,
+        "urbanWeight": 0.117,
+        "youthWeight": 0.278,
+        "seniorWeight": 0.3
+      }
     },
     {
       "name": "Iowa",
@@ -2835,7 +2985,17 @@
           "volunteers": 15000,
           "budgetK": 1450.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 45.979841449581215,
+        "urbanSupport": 46.71049594165463,
+        "youthSupport": 47.9837838155933,
+        "seniorSupport": 47.25713878827794,
+        "ruralWeight": 0.392,
+        "urbanWeight": 0.143,
+        "youthWeight": 0.243,
+        "seniorWeight": 0.222
+      }
     },
     {
       "name": "Kansas",
@@ -3012,7 +3172,17 @@
           "volunteers": 2500,
           "budgetK": 88.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 51.42932841288255,
+        "urbanSupport": 51.69380064463858,
+        "youthSupport": 45.22957289981948,
+        "seniorSupport": 47.14780083172024,
+        "ruralWeight": 0.381,
+        "urbanWeight": 0.155,
+        "youthWeight": 0.295,
+        "seniorWeight": 0.169
+      }
     },
     {
       "name": "Kentucky",
@@ -3189,7 +3359,17 @@
           "volunteers": 4000,
           "budgetK": 130.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 48.67474654561433,
+        "urbanSupport": 49.95804402507317,
+        "youthSupport": 49.913948584298716,
+        "seniorSupport": 54.25390194703358,
+        "ruralWeight": 0.364,
+        "urbanWeight": 0.199,
+        "youthWeight": 0.266,
+        "seniorWeight": 0.172
+      }
     },
     {
       "name": "Louisiana",
@@ -3366,7 +3546,17 @@
           "volunteers": 4000,
           "budgetK": 130.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 45.87330444430662,
+        "urbanSupport": 52.66192286962785,
+        "youthSupport": 46.93677664421292,
+        "seniorSupport": 45.9749016337285,
+        "ruralWeight": 0.366,
+        "urbanWeight": 0.188,
+        "youthWeight": 0.255,
+        "seniorWeight": 0.19
+      }
     },
     {
       "name": "Maine",
@@ -3543,7 +3733,17 @@
           "volunteers": 10000,
           "budgetK": 1050.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 46.138721289589895,
+        "urbanSupport": 46.997115970303376,
+        "youthSupport": 49.177937503790474,
+        "seniorSupport": 53.119346249427956,
+        "ruralWeight": 0.108,
+        "urbanWeight": 0.373,
+        "youthWeight": 0.236,
+        "seniorWeight": 0.282
+      }
     },
     {
       "name": "Maryland",
@@ -3720,7 +3920,17 @@
           "volunteers": 8000,
           "budgetK": 275.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 54.521402727369875,
+        "urbanSupport": 52.9218363331336,
+        "youthSupport": 46.13973673265064,
+        "seniorSupport": 46.04638619039235,
+        "ruralWeight": 0.199,
+        "urbanWeight": 0.384,
+        "youthWeight": 0.219,
+        "seniorWeight": 0.199
+      }
     },
     {
       "name": "Massachusetts",
@@ -3897,7 +4107,17 @@
           "volunteers": 12000,
           "budgetK": 375.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 48.516472590323446,
+        "urbanSupport": 45.8159541044122,
+        "youthSupport": 47.21835188435626,
+        "seniorSupport": 50.406019191160894,
+        "ruralWeight": 0.178,
+        "urbanWeight": 0.307,
+        "youthWeight": 0.226,
+        "seniorWeight": 0.289
+      }
     },
     {
       "name": "Michigan",
@@ -4074,7 +4294,17 @@
           "volunteers": 60000,
           "budgetK": 11000.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 54.77009898013654,
+        "urbanSupport": 52.540889998285834,
+        "youthSupport": 50.143539378859,
+        "seniorSupport": 53.6282187686105,
+        "ruralWeight": 0.323,
+        "urbanWeight": 0.15,
+        "youthWeight": 0.287,
+        "seniorWeight": 0.24
+      }
     },
     {
       "name": "Minnesota",
@@ -4251,7 +4481,17 @@
           "volunteers": 25000,
           "budgetK": 3480.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 50.76856173159558,
+        "urbanSupport": 47.83290739166551,
+        "youthSupport": 47.47117955592664,
+        "seniorSupport": 52.47734897184193,
+        "ruralWeight": 0.391,
+        "urbanWeight": 0.171,
+        "youthWeight": 0.24,
+        "seniorWeight": 0.198
+      }
     },
     {
       "name": "Mississippi",
@@ -4428,7 +4668,17 @@
           "volunteers": 2000,
           "budgetK": 65.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 48.77550311898868,
+        "urbanSupport": 53.266289091878,
+        "youthSupport": 46.6168961121663,
+        "seniorSupport": 48.668528951666175,
+        "ruralWeight": 0.31,
+        "urbanWeight": 0.175,
+        "youthWeight": 0.277,
+        "seniorWeight": 0.239
+      }
     },
     {
       "name": "Missouri",
@@ -4605,7 +4855,17 @@
           "volunteers": 8000,
           "budgetK": 540.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 48.8889216874345,
+        "urbanSupport": 48.92357042770308,
+        "youthSupport": 50.28435903192579,
+        "seniorSupport": 50.57463532210558,
+        "ruralWeight": 0.318,
+        "urbanWeight": 0.107,
+        "youthWeight": 0.212,
+        "seniorWeight": 0.363
+      }
     },
     {
       "name": "Montana",
@@ -4782,7 +5042,17 @@
           "volunteers": 2500,
           "budgetK": 118.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 47.82318421991526,
+        "urbanSupport": 48.88807629455285,
+        "youthSupport": 50.53722572570845,
+        "seniorSupport": 47.32298014816148,
+        "ruralWeight": 0.154,
+        "urbanWeight": 0.303,
+        "youthWeight": 0.268,
+        "seniorWeight": 0.275
+      }
     },
     {
       "name": "Nebraska",
@@ -4959,7 +5229,17 @@
           "volunteers": 8000,
           "budgetK": 830.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 52.525668580510256,
+        "urbanSupport": 50.91071646443849,
+        "youthSupport": 46.6697262785825,
+        "seniorSupport": 50.9924966648296,
+        "ruralWeight": 0.385,
+        "urbanWeight": 0.18,
+        "youthWeight": 0.237,
+        "seniorWeight": 0.198
+      }
     },
     {
       "name": "Nevada",
@@ -5136,7 +5416,17 @@
           "volunteers": 35000,
           "budgetK": 6500.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 53.98272196832204,
+        "urbanSupport": 52.7146338965027,
+        "youthSupport": 53.503338882696916,
+        "seniorSupport": 46.02786839958581,
+        "ruralWeight": 0.108,
+        "urbanWeight": 0.35,
+        "youthWeight": 0.264,
+        "seniorWeight": 0.279
+      }
     },
     {
       "name": "New Hampshire",
@@ -5313,7 +5603,17 @@
           "volunteers": 18000,
           "budgetK": 2750.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 51.85166564886849,
+        "urbanSupport": 47.500521511242866,
+        "youthSupport": 52.73134016459182,
+        "seniorSupport": 52.325810814565116,
+        "ruralWeight": 0.112,
+        "urbanWeight": 0.398,
+        "youthWeight": 0.27,
+        "seniorWeight": 0.22
+      }
     },
     {
       "name": "New Jersey",
@@ -5490,7 +5790,17 @@
           "volunteers": 10000,
           "budgetK": 465.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 53.5325357164584,
+        "urbanSupport": 45.12920458195177,
+        "youthSupport": 45.50671158973358,
+        "seniorSupport": 45.99996976071608,
+        "ruralWeight": 0.162,
+        "urbanWeight": 0.367,
+        "youthWeight": 0.288,
+        "seniorWeight": 0.183
+      }
     },
     {
       "name": "New Mexico",
@@ -5667,7 +5977,17 @@
           "volunteers": 10000,
           "budgetK": 1050.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 53.24944227227661,
+        "urbanSupport": 48.92475509607143,
+        "youthSupport": 51.65368293762487,
+        "seniorSupport": 50.040830394161695,
+        "ruralWeight": 0.218,
+        "urbanWeight": 0.277,
+        "youthWeight": 0.261,
+        "seniorWeight": 0.243
+      }
     },
     {
       "name": "New York",
@@ -5844,7 +6164,17 @@
           "volunteers": 30000,
           "budgetK": 830.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 51.81093045685726,
+        "urbanSupport": 54.65765138247905,
+        "youthSupport": 53.82670019653122,
+        "seniorSupport": 50.73722583431835,
+        "ruralWeight": 0.141,
+        "urbanWeight": 0.32,
+        "youthWeight": 0.239,
+        "seniorWeight": 0.3
+      }
     },
     {
       "name": "North Carolina",
@@ -6021,7 +6351,17 @@
           "volunteers": 50000,
           "budgetK": 10700.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 51.734520023449626,
+        "urbanSupport": 54.152301650620345,
+        "youthSupport": 51.93285305880184,
+        "seniorSupport": 50.07841294684421,
+        "ruralWeight": 0.356,
+        "urbanWeight": 0.153,
+        "youthWeight": 0.215,
+        "seniorWeight": 0.276
+      }
     },
     {
       "name": "North Dakota",
@@ -6198,7 +6538,17 @@
           "volunteers": 1000,
           "budgetK": 82.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 54.858644104799446,
+        "urbanSupport": 54.57184688155043,
+        "youthSupport": 45.65079127547649,
+        "seniorSupport": 45.4307366710627,
+        "ruralWeight": 0.393,
+        "urbanWeight": 0.161,
+        "youthWeight": 0.274,
+        "seniorWeight": 0.172
+      }
     },
     {
       "name": "Ohio",
@@ -6375,7 +6725,17 @@
           "volunteers": 35000,
           "budgetK": 6500.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 48.80478172440545,
+        "urbanSupport": 52.689681978348396,
+        "youthSupport": 52.1014323399134,
+        "seniorSupport": 49.32470213245639,
+        "ruralWeight": 0.392,
+        "urbanWeight": 0.118,
+        "youthWeight": 0.212,
+        "seniorWeight": 0.277
+      }
     },
     {
       "name": "Oklahoma",
@@ -6552,7 +6912,17 @@
           "volunteers": 2500,
           "budgetK": 88.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 49.47574423435566,
+        "urbanSupport": 46.61655954966413,
+        "youthSupport": 46.91244058890232,
+        "seniorSupport": 47.16968807078682,
+        "ruralWeight": 0.274,
+        "urbanWeight": 0.292,
+        "youthWeight": 0.227,
+        "seniorWeight": 0.207
+      }
     },
     {
       "name": "Oregon",
@@ -6729,7 +7099,17 @@
           "volunteers": 8000,
           "budgetK": 405.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 53.88264976763084,
+        "urbanSupport": 46.43074392522588,
+        "youthSupport": 45.65654923671087,
+        "seniorSupport": 48.39958885018002,
+        "ruralWeight": 0.167,
+        "urbanWeight": 0.319,
+        "youthWeight": 0.276,
+        "seniorWeight": 0.239
+      }
     },
     {
       "name": "Pennsylvania",
@@ -6906,7 +7286,17 @@
           "volunteers": 70000,
           "budgetK": 13000.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 50.38788865860427,
+        "urbanSupport": 49.13612956938871,
+        "youthSupport": 54.83003702320358,
+        "seniorSupport": 47.88315668327464,
+        "ruralWeight": 0.194,
+        "urbanWeight": 0.303,
+        "youthWeight": 0.292,
+        "seniorWeight": 0.211
+      }
     },
     {
       "name": "Rhode Island",
@@ -7083,7 +7473,17 @@
           "volunteers": 2500,
           "budgetK": 105.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 46.59075584674336,
+        "urbanSupport": 48.38938869515819,
+        "youthSupport": 46.86531143054874,
+        "seniorSupport": 49.007419989560645,
+        "ruralWeight": 0.169,
+        "urbanWeight": 0.348,
+        "youthWeight": 0.236,
+        "seniorWeight": 0.248
+      }
     },
     {
       "name": "South Carolina",
@@ -7260,7 +7660,17 @@
           "volunteers": 5000,
           "budgetK": 205.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 45.20323042883221,
+        "urbanSupport": 47.50143822834778,
+        "youthSupport": 51.89871540774406,
+        "seniorSupport": 45.151828270173226,
+        "ruralWeight": 0.353,
+        "urbanWeight": 0.103,
+        "youthWeight": 0.264,
+        "seniorWeight": 0.279
+      }
     },
     {
       "name": "South Dakota",
@@ -7437,7 +7847,17 @@
           "volunteers": 1200,
           "budgetK": 82.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 45.35649915331781,
+        "urbanSupport": 53.77248763141152,
+        "youthSupport": 54.42584035058191,
+        "seniorSupport": 48.626986924266525,
+        "ruralWeight": 0.377,
+        "urbanWeight": 0.181,
+        "youthWeight": 0.213,
+        "seniorWeight": 0.229
+      }
     },
     {
       "name": "Tennessee",
@@ -7614,7 +8034,17 @@
           "volunteers": 5000,
           "budgetK": 235.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 46.80902808230146,
+        "urbanSupport": 45.74028444734498,
+        "youthSupport": 53.40237501336452,
+        "seniorSupport": 45.213567848006306,
+        "ruralWeight": 0.333,
+        "urbanWeight": 0.179,
+        "youthWeight": 0.206,
+        "seniorWeight": 0.282
+      }
     },
     {
       "name": "Texas",
@@ -7791,7 +8221,17 @@
           "volunteers": 40000,
           "budgetK": 4950.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 47.5212883526095,
+        "urbanSupport": 46.61216370028903,
+        "youthSupport": 53.42615248136903,
+        "seniorSupport": 52.27584122394586,
+        "ruralWeight": 0.208,
+        "urbanWeight": 0.245,
+        "youthWeight": 0.219,
+        "seniorWeight": 0.327
+      }
     },
     {
       "name": "Utah",
@@ -7968,7 +8408,17 @@
           "volunteers": 4000,
           "budgetK": 130.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 48.11246831227746,
+        "urbanSupport": 45.87185541889924,
+        "youthSupport": 48.31890163477211,
+        "seniorSupport": 45.24046504470987,
+        "ruralWeight": 0.189,
+        "urbanWeight": 0.31,
+        "youthWeight": 0.229,
+        "seniorWeight": 0.273
+      }
     },
     {
       "name": "Vermont",
@@ -8145,7 +8595,17 @@
           "volunteers": 2000,
           "budgetK": 82.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 52.20200913092434,
+        "urbanSupport": 50.84108048529923,
+        "youthSupport": 54.711596028165744,
+        "seniorSupport": 49.810630324977566,
+        "ruralWeight": 0.126,
+        "urbanWeight": 0.379,
+        "youthWeight": 0.203,
+        "seniorWeight": 0.292
+      }
     },
     {
       "name": "Virginia",
@@ -8322,7 +8782,17 @@
           "volunteers": 25000,
           "budgetK": 4440.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 50.31129640236589,
+        "urbanSupport": 47.39974782199188,
+        "youthSupport": 50.22067744169543,
+        "seniorSupport": 49.8563985768481,
+        "ruralWeight": 0.352,
+        "urbanWeight": 0.138,
+        "youthWeight": 0.219,
+        "seniorWeight": 0.291
+      }
     },
     {
       "name": "Washington",
@@ -8499,7 +8969,17 @@
           "volunteers": 12000,
           "budgetK": 485.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 49.71939169204735,
+        "urbanSupport": 49.57341455049266,
+        "youthSupport": 51.77507136005884,
+        "seniorSupport": 52.96402481609712,
+        "ruralWeight": 0.195,
+        "urbanWeight": 0.395,
+        "youthWeight": 0.281,
+        "seniorWeight": 0.13
+      }
     },
     {
       "name": "West Virginia",
@@ -8676,7 +9156,17 @@
           "volunteers": 1500,
           "budgetK": 65.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 53.601166866598184,
+        "urbanSupport": 45.691970503107996,
+        "youthSupport": 48.00348148042063,
+        "seniorSupport": 54.21670127850489,
+        "ruralWeight": 0.31,
+        "urbanWeight": 0.171,
+        "youthWeight": 0.26,
+        "seniorWeight": 0.259
+      }
     },
     {
       "name": "Wisconsin",
@@ -8853,7 +9343,17 @@
           "volunteers": 55000,
           "budgetK": 9750.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 47.30106025432872,
+        "urbanSupport": 47.94841520526428,
+        "youthSupport": 52.56914186345529,
+        "seniorSupport": 53.967927348202664,
+        "ruralWeight": 0.334,
+        "urbanWeight": 0.157,
+        "youthWeight": 0.241,
+        "seniorWeight": 0.268
+      }
     },
     {
       "name": "Wyoming",
@@ -9030,7 +9530,17 @@
           "volunteers": 800,
           "budgetK": 60.0
         }
-      ]
+      ],
+      "demographics": {
+        "ruralSupport": 47.91993097136321,
+        "urbanSupport": 47.94377018964855,
+        "youthSupport": 48.96502959391579,
+        "seniorSupport": 46.965212269084645,
+        "ruralWeight": 0.17,
+        "urbanWeight": 0.363,
+        "youthWeight": 0.291,
+        "seniorWeight": 0.176
+      }
     }
   ]
 }

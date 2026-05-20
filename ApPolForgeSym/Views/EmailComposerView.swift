@@ -68,7 +68,7 @@ struct EmailComposerView: View {
                         Text(candidate.party.abbreviation)
                             .font(.headline)
                             .padding(8)
-                            .background(Color(hex: candidate.party.hexColor)?.opacity(0.2) ?? Color.accentColor.opacity(0.2))
+                            .background(Color(hex: candidate.party.hexColor).opacity(0.2))
                             .clipShape(Circle())
                     }
                 } else {
@@ -364,19 +364,6 @@ struct MailComposeView: UIViewControllerRepresentable {
 }
 #endif
 
-// MARK: - Color Hex Extension (local)
-
-private extension Color {
-    init?(hex: String) {
-        let hex = hex.trimmingCharacters(in: .init(charactersIn: "#"))
-        guard hex.count == 6, let value = UInt64(hex, radix: 16) else { return nil }
-        self.init(
-            red:   Double((value >> 16) & 0xFF) / 255,
-            green: Double((value >> 8) & 0xFF) / 255,
-            blue:  Double(value & 0xFF) / 255
-        )
-    }
-}
 
 #Preview {
     EmailComposerView(gameState: GameState())

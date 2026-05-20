@@ -33,6 +33,7 @@ struct StateDataEntry: Codable {
     let staffing: StaffingData
     let budget: BudgetData
     let weeklyPacing: [WeeklyPacingEntry]
+    let demographics: VoterDemographics? // Add this
 }
 
 struct HistoricalData: Codable {
@@ -185,7 +186,8 @@ class CampaignDataLoader {
                 roiRating: entry.roi.roiRating,
                 spendEfficiency: entry.roi.spendEfficiencyRating,
                 actionEffectiveness: actionEffectiveness,
-                mediaMarketCostIndex: entry.roi.mediaMarketCostIndex
+                mediaMarketCostIndex: entry.roi.mediaMarketCostIndex,
+                demographics: entry.demographics
             )
         }
     }

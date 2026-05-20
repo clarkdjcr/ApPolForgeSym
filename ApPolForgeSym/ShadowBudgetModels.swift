@@ -51,6 +51,7 @@ struct ShadowBudgetState: Codable {
     var detectionRisk: Double = 0.0
     var usesShellCompanies: Bool = false
     var counterIntelLevel: Double = 1.0
+    var securityAllocation: Double = 0.0 // 0 to 100% of shadow budget
     var totalSpentOnShadowOps: Double = 0.0
     
     // Operation results
@@ -332,5 +333,40 @@ struct DenialAttempt: Codable {
     mutating func attemptDenial() -> Bool {
         succeeded = Double.random(in: 0...1) < successChance
         return succeeded
+    }
+}
+
+// MARK: - Crisis Management
+
+enum CrisisStrategy: String, Codable, CaseIterable, Identifiable {
+    case deny = "Deny & Counter-Attack"
+    case deflection = "Deflect to Other Issues"
+    case transparency = "Full Transparency"
+    case scapegoat = "Fire Key Staff"
+    
+    var id: String { rawValue }
+    
+    var description: String {
+        switch self {
+        case .deny: return "Aggressively deny all allegations. High risk of total collapse if proven true."
+        case .deflection: return "Change the subject to a major policy victory. Reduces focus but scandal lingers."
+        case .transparency: return "Admit the mistake and apologize. Reduces damage but alienates hardliners."
+        case .scapegoat: return "Blame a rogue staffer. Effective but damages internal morale."
+        }
+    }
+    
+    func calculateOutcome(scandal: ShadowBudgetScandal, integrity: Double) -> (success: Bool, pollingImpact: Double) {
+        switch self {
+        case .deny:
+            let success = Double.random(in: 0...1) < (0.3 + integrity/200.0)
+            return (success, success ? 0 : scandal.pollingImpact * 2.0)
+        case .deflection:
+            return (true, scandal.pollingImpact * 0.5)
+        case .transparency:
+            return (true, scandal.pollingImpact * 0.3)
+        case .scapegoat:
+            let success = Double.random(in: 0...1) < 0.6
+            return (success, success ? scandal.pollingImpact * 0.2 : scandal.pollingImpact)
+        }
     }
 }

@@ -229,10 +229,19 @@ class ShadowBudgetManager: ObservableObject {
         gameState.recentEvents.insert(event, at: 0)
         
         // Update player
+        // New: Mitigation based on counter-intel of the target
+        let targetState = playerType == .incumbent ? incumbentShadowState : challengerShadowState
+        let securityMitigation = targetState.counterIntelLevel / 100.0
+        let effectivePollingImpact = scandal.pollingImpact * (1.0 - securityMitigation)
+        
         if playerType == .incumbent {
+            gameState.incumbent.nationalPolling += effectivePollingImpact
+            gameState.incumbent.momentum -= 5
             gameState.incumbent = player
             incumbentIntegrity = integrity
         } else {
+            gameState.challenger.nationalPolling += effectivePollingImpact
+            gameState.challenger.momentum -= 5
             gameState.challenger = player
             challengerIntegrity = integrity
         }

@@ -428,7 +428,7 @@ struct CandidatePreviewRow: View {
     var body: some View {
         HStack(spacing: 12) {
             Circle()
-                .fill(Color(hex: party.hexColor) ?? .accentColor)
+                .fill(Color(hex: party.hexColor))
                 .frame(width: 36, height: 36)
                 .overlay(
                     Text(party.abbreviation)
@@ -462,20 +462,6 @@ struct CandidatePreviewRow: View {
     }
 }
 
-// MARK: - Color Hex Extension (local)
-
-private extension Color {
-    init?(hex: String) {
-        let hex = hex.trimmingCharacters(in: .init(charactersIn: "#"))
-        guard hex.count == 6,
-              let value = UInt64(hex, radix: 16) else { return nil }
-        self.init(
-            red:   Double((value >> 16) & 0xFF) / 255,
-            green: Double((value >> 8) & 0xFF) / 255,
-            blue:  Double(value & 0xFF) / 255
-        )
-    }
-}
 
 #Preview {
     CandidateSetupView(gameState: GameState())

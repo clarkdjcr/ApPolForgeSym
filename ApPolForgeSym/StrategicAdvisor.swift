@@ -160,11 +160,24 @@ class StrategicAdvisor: ObservableObject {
         
         // 3. Infrastructure recommendations - states with poor ground game
         let infrastructureGaps = identifyInfrastructureGaps(for: playerType)
-        if !infrastructureGaps.isEmpty {
-            recommendations.append(createInfrastructureRecommendation(
-                states: infrastructureGaps,
+        for state in infrastructureGaps {
+            var rec = createInfrastructureRecommendation(
+                states: [state],
                 playerType: playerType
-            ))
+            )
+            rec.reasoning = "Campaign performance in \(state.name) is below target. Urgent resource infusion required."
+            
+            // Add messaging suggestions if possible
+            Task {
+                if let suggestions = try? await ExternalAIAgentService.shared.generateMessagingSuggestions(for: state) {
+                    await MainActor.run {
+                        if let index = recommendations.firstIndex(where: { $0.targetStates.contains(state.id) }) {
+                            recommendations[index].messagingSuggestions = suggestions
+                        }
+                    }
+                }
+            }
+            recommendations.append(rec)
         }
         
         // 4. Fundraising recommendation if funds are low

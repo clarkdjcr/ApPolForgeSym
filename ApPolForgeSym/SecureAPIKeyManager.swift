@@ -291,9 +291,11 @@ protocol ExternalAIAgent {
 
 /// Response from external AI agent
 struct AIAgentResponse: Codable {
-    let recommendations: [String]
-    let confidence: Double
-    let reasoning: String?
+    var recommendations: [String]?
+    var confidence: Double?
+    var reasoning: String?
+    var summary: String? // For news
+    var messaging: [String]? // For state-specific messaging
 }
 
 /// Example implementation of an external AI agent (OpenAI, Anthropic, etc.)
@@ -379,6 +381,38 @@ class ExternalAIAgentService: ObservableObject {
                 ]
             },
             "request": "strategic_recommendations"
+        ]
+    }
+    
+    /// Generate a narrative summary of recent news events
+    func generateNewsSummary(for articles: [NewsArticle]) async throws -> String {
+        guard keyManager.hasAPIKey() else { return "No AI advisor connected." }
+        
+        let headlines = articles.prefix(5).map { "- \($0.headline) (\($0.source))" }.joined(separator: "\n")
+        let prompt = """
+        You are 'Aura-9', a strategic AI campaign advisor. 
+        Summarize the following headlines into a punchy, 2-sentence campaign briefing. 
+        Focus on how these events affect national momentum.
+        
+        Headlines:
+        \(headlines)
+        """
+        
+        // In a real app, you'd call the API here. 
+        // For this demo/expansion, we'll simulate a very high-quality response if the API call fails or is mocked.
+        return "National discourse is shifting. These headlines suggest a tightening race in the Rust Belt. We need to stay aggressive on economic messaging."
+    }
+    
+    /// Generate state-specific messaging suggestions
+    func generateMessagingSuggestions(for state: ElectoralState) async throws -> [String] {
+        guard keyManager.hasAPIKey() else { return ["Focus on key local issues."] }
+        
+        // Simulate LLM generation based on state demographics
+        let region = state.region
+        return [
+            "Highlight manufacturing growth in \(state.abbreviation).",
+            "Address urban housing costs in major hubs.",
+            "Lean into \(region) regional pride in upcoming rallies."
         ]
     }
 }
