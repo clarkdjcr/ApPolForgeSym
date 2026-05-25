@@ -67,6 +67,8 @@ final class FirestoreService: ObservableObject {
     private let db: Firestore
     private var listeners: [ListenerRegistration] = []
     private let cacheKey = "FirestoreService.offlineCache"
+    private var correlationsFetchDates: [String: Date] = [:]  // raceId → last fetch time
+    private let correlationsTTL: TimeInterval = 86_400         // 24 hours
 
     private init() {
         // Firestore offline persistence is enabled by default in the iOS SDK.
@@ -141,7 +143,14 @@ final class FirestoreService: ObservableObject {
     }
 
     /// Fetch issue-polling correlations for a specific race.
-    func fetchIssueCorrelations(for raceId: String) async {
+    /// Skips Firestore if cached data is less than 24 hours old.
+    func fetchIssueCorrelations(for raceId: String, forceRefresh: Bool = false) async {
+        if !forceRefresh,
+           let lastFetch = correlationsFetchDates[raceId],
+           issueCorrelations[raceId] != nil,
+           Date().timeIntervalSince(lastFetch) < correlationsTTL {
+            return
+        }
         do {
             let snapshot = try await db.collection("issues").document(raceId)
                 .collection("correlations").getDocuments()
@@ -149,6 +158,8 @@ final class FirestoreService: ObservableObject {
                 parseCorrelation(from: doc.data(), raceId: raceId)
             }
             issueCorrelations[raceId] = correlations
+            correlationsFetchDates[raceId] = Date()
+            persistCache()
         } catch {
             lastError = error.localizedDescription
         }
@@ -401,12 +412,15 @@ final class FirestoreService: ObservableObject {
     // MARK: - Offline Cache
 
     private func persistCache() {
-        // Lightweight UserDefaults cache for last-known poll averages.
-        // Full Firestore offline persistence handles document-level caching automatically.
         let encoder = JSONEncoder()
         if let data = try? encoder.encode(Array(pollAverages.values)) {
             UserDefaults.standard.set(data, forKey: "\(cacheKey).pollAverages")
         }
+        if let data = try? encoder.encode(issueCorrelations) {
+            UserDefaults.standard.set(data, forKey: "\(cacheKey).correlations")
+        }
+        let fetchDatesRaw = correlationsFetchDates.mapValues { $0.timeIntervalSince1970 }
+        UserDefaults.standard.set(fetchDatesRaw, forKey: "\(cacheKey).correlationDates")
     }
 
     func loadFromCache() {
@@ -416,6 +430,13 @@ final class FirestoreService: ObservableObject {
             for avg in averages {
                 pollAverages[avg.raceId] = avg
             }
+        }
+        if let data = UserDefaults.standard.data(forKey: "\(cacheKey).correlations"),
+           let cached = try? decoder.decode([String: [PollIssueCorrelation]].self, from: data) {
+            issueCorrelations = cached
+        }
+        if let raw = UserDefaults.standard.dictionary(forKey: "\(cacheKey).correlationDates") as? [String: TimeInterval] {
+            correlationsFetchDates = raw.mapValues { Date(timeIntervalSince1970: $0) }
         }
     }
 
