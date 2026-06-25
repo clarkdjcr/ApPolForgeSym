@@ -18,11 +18,22 @@ private let contentViewTabs: [(Int, String)] = [
 ]
 
 struct ContentView: View {
+    var body: some View {
+        TabView {
+            CampaignRootView()
+                .tabItem { Label("Campaign", systemImage: "building.columns.fill") }
+            BestEffortsHomeView()
+                .tabItem { Label("Best Efforts", systemImage: "chart.line.uptrend.xyaxis") }
+        }
+    }
+}
+
+struct CampaignRootView: View {
     @StateObject private var gameState = GameState()
     @StateObject private var settings = AppSettings.shared
     @State private var showingTutorial = false
     @State private var showingLoadAlert = false
-    
+
     var body: some View {
         Group {
             switch gameState.gamePhase {
@@ -57,7 +68,7 @@ struct ContentView: View {
             }
         }
     }
-    
+
     private func checkForSavedGame() {
         if PersistenceManager.shared.hasAutoSave() {
             showingLoadAlert = true
@@ -65,7 +76,7 @@ struct ContentView: View {
             showingTutorial = true
         }
     }
-    
+
     private func loadSavedGame() {
         do {
             let saveData = try PersistenceManager.shared.loadAutoSave()

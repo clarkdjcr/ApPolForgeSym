@@ -34,6 +34,7 @@
 		9273A58A2F16FDE900570EC1 /* ARCHITECTURE_DIAGRAM.md in Resources */ = {isa = PBXBuildFile; fileRef = 9273A5892F16FDE900570EC1 /* ARCHITECTURE_DIAGRAM.md */; };
 		AA000004000000000000001A /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = AA000002000000000000001A /* FirebaseCore */; };
 		AA000005000000000000001A /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = AA000003000000000000001A /* FirebaseFirestore */; };
+		AA000008000000000000001A /* BestEffortsCore in Frameworks */ = {isa = PBXBuildFile; productRef = AA000007000000000000001A /* BestEffortsCore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -109,6 +110,7 @@
 			files = (
 				AA000004000000000000001A /* FirebaseCore in Frameworks */,
 				AA000005000000000000001A /* FirebaseFirestore in Frameworks */,
+				AA000008000000000000001A /* BestEffortsCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -196,6 +198,7 @@
 			packageProductDependencies = (
 				AA000002000000000000001A /* FirebaseCore */,
 				AA000003000000000000001A /* FirebaseFirestore */,
+				AA000007000000000000001A /* BestEffortsCore */,
 			);
 			productName = ApPolForgeSym;
 			productReference = 926BE5B82F1487CD000DD882 /* Campaign Manager 2026.app */;
@@ -281,6 +284,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				AA000001000000000000001A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				AA000006000000000000001A /* XCLocalSwiftPackageReference "../BestEfforts" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 926BE5B92F1487CD000DD882 /* Products */;
@@ -507,7 +511,7 @@
 				CLANG_USE_OPTIMIZATION_PROFILE = YES;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 11;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 965RA266P3;
 				ENABLE_APP_SANDBOX = YES;
@@ -532,7 +536,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.2;
-				MARKETING_VERSION = 2.2;
+				MARKETING_VERSION = 2.3;
 				PRODUCT_BUNDLE_IDENTIFIER = clarkdjcr.ApPolForgeSym;
 				PRODUCT_NAME = "Campaign Manager 2026";
 				REGISTER_APP_GROUPS = YES;
@@ -557,7 +561,7 @@
 				CLANG_USE_OPTIMIZATION_PROFILE = YES;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 11;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 965RA266P3;
 				ENABLE_APP_SANDBOX = YES;
@@ -582,7 +586,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.2;
-				MARKETING_VERSION = 2.2;
+				MARKETING_VERSION = 2.3;
 				PRODUCT_BUNDLE_IDENTIFIER = clarkdjcr.ApPolForgeSym;
 				PRODUCT_NAME = "Campaign Manager 2026";
 				REGISTER_APP_GROUPS = YES;
@@ -742,6 +746,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		AA000006000000000000001A /* XCLocalSwiftPackageReference "../BestEfforts" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../BestEfforts;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		AA000001000000000000001A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -763,6 +774,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = AA000001000000000000001A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
+		};
+		AA000007000000000000001A /* BestEffortsCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AA000006000000000000001A /* XCLocalSwiftPackageReference "../BestEfforts" */;
+			productName = BestEffortsCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 
